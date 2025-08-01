@@ -1,0 +1,14 @@
+# system
+.DS_Store
+__pycache__/
+*.pyc
+
+# local data
+data/
+
+# env files
+.env
+dbt/profiles.yml
+
+# venv
+.venv/
