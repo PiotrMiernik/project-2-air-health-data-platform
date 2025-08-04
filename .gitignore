@@ -1,14 +1,25 @@
-# system
+# System / IDE
 .DS_Store
 __pycache__/
 *.pyc
+*.pyo
+*.log
+*.ipynb_checkpoints
 
-# local data
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Local data
 data/
+validation/__pycache__/
+tests/__pycache__/
 
-# env files
+# Environment config
 .env
 dbt/profiles.yml
 
-# venv
-.venv/
+# OS-specific
+Thumbs.db
+
