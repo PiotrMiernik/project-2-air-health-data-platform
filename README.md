@@ -1,87 +1,152 @@
 # Project 2 – Air Quality and Health Data Platform
 
-This project is an **end-to-end data engineering pipeline** built around a modern **data lakehouse architecture** on AWS with dbt. It integrates air quality and public health data from multiple authoritative sources and transforms them into structured, queryable datasets ready for analysis and sharing.
+This project is an **end-to-end data engineering pipeline** built around a modern **data lakehouse architecture** on AWS using dbt and Python. It integrates air quality and public health data from multiple trusted sources and transforms them into structured, queryable datasets ready for analysis and sharing.
 
-## **Project Overview**
+---
+
+## Project Overview
 
 The main goal is to design and implement a complete data platform that:
 
-- Collects air quality and disease-related data from public APIs (e.g.
-  OpenAQ, WHO, ECDC)
-- Loads the raw data into a **data lake** on Amazon S3
-- Organizes and transforms the data into curated layers using dbt
-  (Bronze → Silver → Gold)
-- Enables data analysis and sharing through **AWS Athena** and open data
-  publishing
-- Automates the workflow via orchestration and CI/CD tools
+- Collects air quality and disease-related data from public APIs (OpenAQ, WHO, ECDC)
+- Loads raw data into a **data lake** on Amazon S3 (Bronze layer)
+- Catalogs data using AWS Glue and exposes it in Athena
+- Transforms data through versioned dbt models (Silver and Gold layers)
+- Validates and tests code and data via automated CI/CD
+- Publishes data for reuse through AWS Athena or AWS Data Exchange
 
-## **Key Features**
+---
+
+## Key Features
 
 - **Lakehouse architecture** using S3 + Glue + Athena + dbt
-- **ELT workflow** using Python: Extract → Load → Transform
-- **Versioned transformations** with dbt models and tests
-- **CI/CD integration** with GitHub Actions for testing and model
-  deployment
-- Designed for **data sharing** with researchers, analysts, and policy
-  makers
+- **ELT workflow** with modular Python ingestion and dbt transformations
+- **Layered modeling**: Bronze → Silver → Gold
+- **CI/CD pipelines** with GitHub Actions (Python + dbt)
+- **Automated testing**:
+  - Python unit tests for ingestion and helper functions
+  - Data validation logic (nulls, types, schema)
+  - dbt tests (`not_null`, `unique`, etc.)
+- Designed for **data sharing** with analysts, researchers, and policymakers
 
-## **Repository Structure**
+---
 
-project-2-air-health-data-platform/
+## Repository Structure
 
-├── ingestion/ # Python scripts for API
-ingestion
+project2-air-health-trends/
 
-├── dbt/ # dbt project: models, tests,
-macros, snapshots
+├── ingestion/                  # Python scripts for downloading data
 
-│ ├──
-models/bronze/ # Raw staging models
+│   ├── download_openaq.py
 
-│ ├──
-models/silver/ # Cleaned/normalized models
+│   ├── download_who.py
 
-│ ├── models/gold/Business-level curated models
+│   ├── download_ecdc.py
 
-├── orchestration/ # AWS Step Functions
-definitions
+│   └── upload_to_s3.py
 
-├── utils/ # Helper functions (e.g. S3
-uploader)
+├── dbt/                        # dbt project (Athena backend)
 
-├── .github/workflows/ # CI/CD
-pipelines
+│   ├── models/
 
-├── data/ # (Optional) sample local
-data
+│   │   ├── bronze/             # Raw staging from S3
+
+│   │   ├── silver/             # Cleaned / normalized
+
+│   │   └── gold/               # Analytical business logic
+
+│   ├── tests/                  # dbt schema tests
+
+│   ├── macros/                 # Reusable Jinja functions
+
+│   ├── snapshots/              # (Optional) slowly changing dimensions
+
+│   ├── dbt_project.yml
+
+│   └── profiles.yml            # dbt profile (local or CI secret)
+
+├── tests/                      # Unit tests for ingestion and utils
+
+│   ├── test_download_openaq.py
+
+│   ├── test_s3_utils.py
+
+│   └── test_validation.py
+
+├── validation/                 # Custom data validation logic
+
+│   └── validation.py
+
+├── orchestration/              # AWS Step Functions definition
+
+│   └── step_function_definition.json
+
+├── utils/                      # Helper functions
+
+│   └── s3_utils.py
+
+├── .github/workflows/          # CI/CD automation
+
+│   ├── run-tests.yml           # Python tests + validation
+
+│   └── dbt-build.yml           # dbt build + test on push/PR
+
+├── data/                       # (Optional) local sample data
+
+├── requirements.txt            # Python dependencies
+
+├── .gitignore                  # Files and folders to exclude from Git
 
 └── README.md
 
-## **Technologies Used**
+## Technologies Used
 
-- **Python 3.11+** – ingestion, S3 upload
-- **AWS S3** – data lake storage
-- **AWS Glue** – metadata catalog
-- **AWS Athena** – SQL querying over S3
-- **dbt** – transformations, documentation, testing
-- **GitHub Actions** – CI/CD for testing and dbt builds
-- **AWS Step Functions** – (optional) orchestration for ELT
-- **AWS Data Exchange** - data sheering platform
+- **Python 3.11+** – ingestion scripts, validation, testing
+- **AWS S3** – raw and processed data storage
+- **AWS Glue** – automatic schema inference and Data Catalog
+- **AWS Athena** – querying data with SQL over S3
+- **dbt** – transformation logic, testing, documentation
+- **GitHub Actions** – CI/CD pipelines for Python and dbt
+- **AWS Step Functions** – orchestration of ingestion workflows
+- **AWS Data Exchange** – data sharing platform for publishing datasets
 
-## **CI/CD Workflows**
+## CI/CD Workflows
 
-.github/workflows/run-tests.yml: Unit tests for ingestion and
-transformation scripts
+| File                                | What it does                                              |
+| ----------------------------------- | --------------------------------------------------------- |
+| `.github/workflows/run-tests.yml` | Runs `pytest` for ingestion scripts and data validation |
+| `.github/workflows/dbt-build.yml` | Runs `dbt build` and `dbt test` on model changes      |
 
-.github/workflows/dbt-build.yml: Automated dbt model builds and tests
+CI/CD is triggered automatically on every push or pull request to the `dev` and `main` branches.
 
-## **Output & Data Sharing**
+---
 
-The final output (Gold models) is available as structured datasets via AWS Athena and designed to be shared through open data shering platforms such
-as AWS Data Exchange or public S3 buckets.
+## Testing and Validation Strategy
 
-## **License**
+- Unit tests for Python ingestion scripts (e.g., API response, structure, nulls)
+- Mocked tests for S3 upload logic using `boto3`
+- Schema and logic validation using `validation.py`
+- dbt schema tests (`not_null`, `unique`, `accepted_values`)
+- All tests are automatically executed in CI pipelines
 
-This project is licensed under the terms of the LICENSE file.
+Tests are written **during development**, and **automated during ETAP 4** via GitHub Actions.
 
-Created by Piotr Miernik – 2025.
+---
+
+## Output & Data Sharing
+
+The final datasets from the `gold` layer are:
+
+- Stored in Parquet or CSV format
+- Available for querying via AWS Athena
+- Shared through public S3 buckets or published as a **data product** on **AWS Data Exchange**
+
+---
+
+## License
+
+This project is licensed under the terms of the [LICENSE](./LICENSE) file.
+
+---
+
+Created by **Piotr Miernik – 2025**
