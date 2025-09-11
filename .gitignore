@@ -23,3 +23,10 @@ dbt/profiles.yml
 # OS-specific
 Thumbs.db
 
+# Terraform
+terraform.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+
+

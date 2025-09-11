@@ -43,7 +43,7 @@ project2-air-health-trends/
 
 │   ├── download_ecdc.py
 
-│   └── upload_to_s3.py
+│   └── download_eurostat.py
 
 ├── dbt/                        # dbt project (Athena backend)
 
@@ -61,21 +61,55 @@ project2-air-health-trends/
 
 │   ├── snapshots/              # (Optional) slowly changing dimensions
 
-│   ├── dbt_project.yml
+│   ├── dbt_project.yml		# core configuration
 
 │   └── profiles.yml            # dbt profile (local or CI secret)
+
+├── terraform/                  # Terraform folder for project infrastructure definition and managment (IaC approach)
+
+│   ├── athena.tf		# Configures Athena settings, such as query result location in S3
+
+│   ├── glue.tf		# Provisions Glue Data Catalog database and crawlers for schema discovery
+
+│   ├── s3.tf		# Creates the S3 data lake structure (bronze/silver/gold/public/query-results)
+
+│   ├── stepfunction.tf		# Defines Step Functions state machines for orchestrating ingestion workflows
+
+│   ├── iam.tf		# Sets up IAM roles and policies for Lambda, CI/CD, and Step Functions
+
+│   └── main.tf		# Optional central file to coordinate module loading or key resources
+
+│   ├── outputs.tf		# Specifies which output values (e.g. bucket ARN, IAM role name) should be printed after apply
+
+│   ├── providers.tf	# Defines the required providers (e.g. AWS) and their versions
+
+│   ├── variables.tf		# Declares input variables used across all modules (e.g. region, bucket name)
+
+│   └── terraform.tfvars.example		# Example values for variables – used locally or in CI (do not commit real values)
+
+│   └── README.md		# Usage instructions for initializing and deploying infrastructure with Terraform
 
 ├── tests/                      # Unit tests for ingestion and utils
 
 │   ├── test_download_openaq.py
 
+│   ├── test_download_ecdc.py
+
+│   ├── test_download_who.py
+
+│   ├── test_download_eurostat.py
+
 │   ├── test_s3_utils.py
 
-│   └── test_validation.py
+├── config/                 # env. variables for local tests and development
 
-├── validation/                 # Custom data validation logic
+│   └── .env
 
-│   └── validation.py
+├── docs/                 # documentation files and diagrams for the project.
+
+│   └── architecture.png
+
+│   └── sources.md
 
 ├── orchestration/              # AWS Step Functions definition
 
@@ -90,6 +124,8 @@ project2-air-health-trends/
 │   ├── run-tests.yml           # Python tests + validation
 
 │   └── dbt-build.yml           # dbt build + test on push/PR
+
+│   └── deploy-lambda.yml           # AWS lambda function for data ingestion
 
 ├── data/                       # (Optional) local sample data
 
@@ -112,10 +148,11 @@ project2-air-health-trends/
 
 ## CI/CD Workflows
 
-| File                                | What it does                                              |
-| ----------------------------------- | --------------------------------------------------------- |
-| `.github/workflows/run-tests.yml` | Runs `pytest` for ingestion scripts and data validation |
-| `.github/workflows/dbt-build.yml` | Runs `dbt build` and `dbt test` on model changes      |
+| File                                    | What it does                                         |
+| --------------------------------------- | ---------------------------------------------------- |
+| `.github/workflows/run-tests.yml`     | Runs `pytest` for ingestion scripts and utils      |
+| `.github/workflows/dbt-build.yml`     | Runs `dbt build` and `dbt test` on model changes |
+| `.github/workflows/deploy-lambda.yml` | Runs data ingestion scripts                          |
 
 CI/CD is triggered automatically on every push or pull request to the `dev` and `main` branches.
 
@@ -125,11 +162,10 @@ CI/CD is triggered automatically on every push or pull request to the `dev` and 
 
 - Unit tests for Python ingestion scripts (e.g., API response, structure, nulls)
 - Mocked tests for S3 upload logic using `boto3`
-- Schema and logic validation using `validation.py`
 - dbt schema tests (`not_null`, `unique`, `accepted_values`)
 - All tests are automatically executed in CI pipelines
 
-Tests are written **during development**, and **automated during ETAP 4** via GitHub Actions.
+Tests are written **during development**, and **automated during project stage 4** via GitHub Actions.
 
 ---
 
