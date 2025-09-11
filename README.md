@@ -1,3 +1,5 @@
+Defines CloudWatch log groups for functions and monitoring.
+
 # Project 2 – Air Quality and Health Data Platform
 
 This project is an **end-to-end data engineering pipeline** built around a modern **data lakehouse architecture** on AWS using dbt and Python. It integrates air quality and public health data from multiple trusted sources and transforms them into structured, queryable datasets ready for analysis and sharing.
@@ -74,6 +76,8 @@ project2-air-health-trends/
 │   ├── s3.tf		# Creates the S3 data lake structure (bronze/silver/gold/public/query-results)
 
 │   ├── stepfunction.tf		# Defines Step Functions state machines for orchestrating ingestion workflows
+
+│   ├── cloudwatch.tf		# Defines CloudWatch log groups for functions and monitoring
 
 │   ├── iam.tf		# Sets up IAM roles and policies for Lambda, CI/CD, and Step Functions
 
