@@ -40,3 +40,56 @@ variable "default_tags" {
     Owner   = "Piotr Miernik"
   }
 }
+
+variable "lambda_functions" {
+  description = "Lambda functions for API ingestion"
+  type = map(object({
+    handler  = string
+    runtime  = string
+    s3_key   = string
+    env_vars = map(string)
+  }))
+
+  default = {
+    ecdc = {
+      handler   = "ecdc_lambda.lambda_handler"
+      runtime   = "python3.11"
+      s3_key    = "lambda/ecdc.zip"
+      env_vars  = {
+        API_NAME  = "ECDC"
+        S3_BUCKET = "project-2-air-health-data-platform"
+        S3_PREFIX = "bronze/ecdc/"
+      }
+    }
+    eurostat = {
+      handler   = "eurostat_lambda.lambda_handler"
+      runtime   = "python3.11"
+      s3_key    = "lambda/eurostat.zip"
+      env_vars  = {
+        API_NAME  = "Eurostat"
+        S3_BUCKET = "project-2-air-health-data-platform"
+        S3_PREFIX = "bronze/eurostat/"
+      }
+    }
+    openaq = {
+      handler   = "openaq_lambda.lambda_handler"
+      runtime   = "python3.11"
+      s3_key    = "lambda/openaq.zip"
+      env_vars  = {
+        API_NAME  = "OpenAQ"
+        S3_BUCKET = "project-2-air-health-data-platform"
+        S3_PREFIX = "bronze/openaq/"
+      }
+    }
+    who = {
+      handler   = "who_lambda.lambda_handler"
+      runtime   = "python3.11"
+      s3_key    = "lambda/who.zip"
+      env_vars  = {
+        API_NAME  = "WHO"
+        S3_BUCKET = "project-2-air-health-data-platform"
+        S3_PREFIX = "bronze/who/"
+      }
+    }
+  }
+}
