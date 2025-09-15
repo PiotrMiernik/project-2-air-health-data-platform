@@ -1,5 +1,4 @@
-
-# IAM role for AWS Lambda (data ingestion)
+# IAM role for AWS Lambda (data ingestion functions)
 resource "aws_iam_role" "lambda_role" {
   name = "project2-lambda-role"
 
@@ -58,30 +57,15 @@ resource "aws_iam_role_policy_attachment" "lambda_attach" {
   policy_arn = aws_iam_policy.lambda_policy.arn
 }
 
-# IAM role for CI/CD (GitHub Actions)
-resource "aws_iam_role" "cicd_role" {
-  name = "project2-cicd-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          AWS = "*" 
-        }
-      }
-    ]
-  })
-
+# IAM user for CI/CD (GitHub Actions)
+resource "aws_iam_user" "cicd_user" {
+  name = "github_actions_user_project2"
   tags = var.default_tags
 }
 
-# IAM policy for CI/CD: allow deploy and S3 operations
-resource "aws_iam_policy" "cicd_policy" {
-  name        = "project2-cicd-policy"
-  description = "Policy for CI/CD pipeline to deploy Lambda and manage S3"
+resource "aws_iam_user_policy" "cicd_user_policy" {
+  name = "project2-cicd-user-policy"
+  user = aws_iam_user.cicd_user.name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -91,16 +75,11 @@ resource "aws_iam_policy" "cicd_policy" {
         Action = [
           "s3:*",
           "lambda:*",
-          "iam:PassRole"
+          "iam:PassRole",
+          "cloudwatch:*"
         ]
         Resource = "*"
       }
     ]
   })
-}
-
-# Attach the policy to the CI/CD role
-resource "aws_iam_role_policy_attachment" "cicd_attach" {
-  role       = aws_iam_role.cicd_role.name
-  policy_arn = aws_iam_policy.cicd_policy.arn
 }
