@@ -51,37 +51,40 @@ This document provides an overview of the external data sources used in the **Ai
 * **Access:** Public
 * **Format:** JSON (CSV also available)
 * **Granularity:**
+
   * Spatial: Country-level (EU/EEA + selected other countries)
   * Temporal: Daily records aggregated to weekly reporting
 * **Key Topics:**
+
   * Confirmed COVID-19 cases and deaths by country
   * Basis for monitoring short-term epidemiological trends
 * **Update Frequency:** Weekly
 * **Coverage Period:** From 2020 to present
 * **Usage in Project:**
+
   * Core dataset for respiratory infection trends (COVID-19)
   * Focused on EU countries (subset of the dataset)
   * Stored in **bronze** as raw JSON, transformed to Parquet in **silver** for optimized querying via Glue/Athena/dbt
 
-## 4. Eurostat – European Health and Environment Statistics
+  ## 4. Eurostat – European Health and Environment Statistics
 
-- **Website:** [https://ec.europa.eu/eurostat](https://ec.europa.eu/eurostat)
-- **API Docs:** [https://ec.europa.eu/eurostat/web/json-and-unicode-web-services](https://ec.europa.eu/eurostat/web/json-and-unicode-web-services)
-- **Access:** Public
-- **Format:** JSON (SDMX), CSV, TSV
-- **Granularity:**
-  - Spatial: Country and NUTS-1/2/3 regional levels
-  - Temporal: Yearly, some quarterly/montly
-- **Relevant Datasets:**
-  - `hlth_cd_aro`: Deaths from respiratory diseases
-  - `hlth_cd_asdr2`: Standardized death rate by cause (e.g. lung cancer)
-  - `hlth_co_dischls`: Hospital discharges by diagnosis
-  - `env_air_emis`: Pollutant emissions (PM, CO2, NOx)
-- **Update Frequency:** Yearly
-- **Coverage Period:** From ~2000 to ~2023
-- **Usage in Project:**
-  - High-quality, standardized health and environmental indicators
-  - Complement to WHO data with regional granularity (NUTS-2)
-  - Will be used in the `silver` and `gold` layers for modeling
 
----
+  * **Website:** [https://ec.europa.eu/eurostat](https://ec.europa.eu/eurostat)
+  * **API Docs:** [https://ec.europa.eu/eurostat/web/json-and-unicode-web-services](https://ec.europa.eu/eurostat/web/json-and-unicode-web-services)
+  * **Access:** Public
+  * **Format:** JSON (JSON-stat 2.0), CSV, TSV
+  * **Granularity:**
+    * Spatial: Country and NUTS-1/2/3 regional levels
+    * Temporal: Yearly (some datasets offer quarterly/monthly updates)
+  * **Relevant Datasets (used in project):**
+    * `hlth_cd_aro`: Deaths from respiratory diseases
+    * `hlth_cd_asdr2`: Standardized death rate by cause (e.g. lung cancer)
+    * `env_air_emis`: Pollutant emissions (PM2.5, PM10, NOx, SOx, NH3)
+    * `env_ac_ainah_r2`: Air emissions accounts by NACE Rev.2 activity (sectoral breakdown)
+    * `env_air_aa`: Air emissions accounts (greenhouse gases and other pollutants)
+  * **Update Frequency:** Yearly
+  * **Coverage Period:** From ~2000 to ~2023
+  * **Usage in Project:**
+    * High-quality, standardized health and environmental indicators relevant to air quality and respiratory health
+    * Complements WHO data with additional environmental and regional granularity (NUTS-2)
+    * Stored in the **bronze** layer as raw JSON; transformed into Parquet in **silver** and **gold** layers for efficient querying and modeling
