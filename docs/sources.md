@@ -44,28 +44,24 @@ This document provides an overview of the external data sources used in the **Ai
   - Health outcome indicators at the national level
   - Data used for long-term analysis and correlation with air quality trends
 
----
-
 ## 3. ECDC – European Centre for Disease Prevention and Control
 
-- **Website:** [https://www.ecdc.europa.eu/en/publications-data](https://www.ecdc.europa.eu/en/publications-data)
-- **API:** [https://data-api.ecdc.europa.eu/](https://data-api.ecdc.europa.eu/)
-- **Access:** Public
-- **Format:** JSON, CSV (depending on dataset)
-- **Granularity:**
-  - Spatial: Country-level, some datasets offer regional (NUTS) level
-  - Temporal: Weekly, monthly, or yearly (depending on disease)
-- **Key Topics:**
-  - Influenza, tuberculosis, RSV, COVID-19, vaccine-preventable diseases
-  - Infectious diseases, but not chronic illnesses
-- **Update Frequency:** Weekly to yearly (varies by dataset)
-- **Coverage Period:** From ~2010 to ~2024
-- **Usage in Project:**
-  - Supplementary data for short-term respiratory infection trends
-  - Focus on infectious diseases potentially impacted by air pollution
-  - Only datasets with stable structure and regular updates will be used
-
----
+* **Website:** [https://www.ecdc.europa.eu/en/publications-data](https://www.ecdc.europa.eu/en/publications-data)
+* **API (COVID-19 cases and deaths):** [https://opendata.ecdc.europa.eu/covid19/nationalcasedeath/json/](https://opendata.ecdc.europa.eu/covid19/nationalcasedeath/json/)
+* **Access:** Public
+* **Format:** JSON (CSV also available)
+* **Granularity:**
+  * Spatial: Country-level (EU/EEA + selected other countries)
+  * Temporal: Daily records aggregated to weekly reporting
+* **Key Topics:**
+  * Confirmed COVID-19 cases and deaths by country
+  * Basis for monitoring short-term epidemiological trends
+* **Update Frequency:** Weekly
+* **Coverage Period:** From 2020 to present
+* **Usage in Project:**
+  * Core dataset for respiratory infection trends (COVID-19)
+  * Focused on EU countries (subset of the dataset)
+  * Stored in **bronze** as raw JSON, transformed to Parquet in **silver** for optimized querying via Glue/Athena/dbt
 
 ## 4. Eurostat – European Health and Environment Statistics
 
