@@ -52,7 +52,7 @@ variable "lambda_functions" {
 
   default = {
     ecdc = {
-      handler   = "ecdc_lambda.lambda_handler"
+      handler   = "download_ecdc.lambda_handler"
       runtime   = "python3.11"
       s3_key    = "lambda/ecdc.zip"
       env_vars  = {
@@ -62,7 +62,7 @@ variable "lambda_functions" {
       }
     }
     eurostat = {
-      handler   = "eurostat_lambda.lambda_handler"
+      handler   = "download_eurostat.lambda_handler"
       runtime   = "python3.11"
       s3_key    = "lambda/eurostat.zip"
       env_vars  = {
@@ -72,7 +72,7 @@ variable "lambda_functions" {
       }
     }
     openaq = {
-      handler   = "openaq_lambda.lambda_handler"
+      handler   = "download_openaq.lambda_handler"
       runtime   = "python3.11"
       s3_key    = "lambda/openaq.zip"
       env_vars  = {
@@ -82,7 +82,7 @@ variable "lambda_functions" {
       }
     }
     who = {
-      handler   = "who_lambda.lambda_handler"
+      handler   = "download_who.lambda_handler"
       runtime   = "python3.11"
       s3_key    = "lambda/who.zip"
       env_vars  = {
@@ -93,3 +93,4 @@ variable "lambda_functions" {
     }
   }
 }
+
