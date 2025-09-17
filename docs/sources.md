@@ -33,16 +33,26 @@ This document provides an overview of the external data sources used in the **Ai
   - Spatial: Country-level (no city-level data)
   - Temporal: Yearly
 - **Indicators Used:**
-  - Mortality from chronic respiratory diseases (MORT_100)
-  - Mortality from lower respiratory infections (MORT_101)
-  - Lung cancer mortality (MORT_103)
-  - DALYs for respiratory diseases
-  - Asthma prevalence
+  * `AIR_10`: Ambient air pollution attributable DALYs per 100 000 children under 5
+  * `AIR_12`: Household air pollution attributable deaths in children under 5
+  * `AIR_15`: Household air pollution attributable DALYs
+  * `AIR_16`: Household air pollution attributable DALYs in children under 5
+  * `AIR_35`: Joint effects of air pollution attributable deaths
+  * `AIR_42`: Ambient air pollution attributable death rate (per 100 000, age-standardized)
+  * `AIR_46`: YLLs attributable to ambient air pollution (age-standardized)
+  * `AIR_6`: Ambient air pollution attributable deaths per 100 000 children under 5
+  * `AIR_60`: Household and ambient air pollution attributable DALYs
+  * `AIR_62`: Household and ambient air pollution attributable DALYs (per 100 000, age-standardized)
+  * `MORT_500`: Number of deaths
+  * `MORT_700`: Projection of deaths per 100 000 population
+  * `TOTENV_3`: DALYs attributable to the environment
+  * `TOTENV_90`: Environment-attributable DALYs in children under 5
 - **Update Frequency:** Annual or biannual
 - **Coverage Period:** From ~2000 to ~2023 (varies per indicator)
 - **Usage in Project:**
-  - Health outcome indicators at the national level
-  - Data used for long-term analysis and correlation with air quality trends
+  * Health outcome indicators at the national level with direct links to air pollution
+  * Focus on mortality, DALYs, and YLLs for respiratory and environment-related diseases
+  * Data used for long-term analysis and correlation with air quality and environmental trends
 
 ## 3. ECDC – European Centre for Disease Prevention and Control
 

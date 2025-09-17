@@ -27,7 +27,7 @@ WHO_INDICATORS = {
     "TOTENV_90": "Total environment attributable DALYs in children under 5",
 }
 
-# List of EU27 ISO country codes (WHO uses ISO2/ISO3 codes, here we assume ISO2)
+# List of EU27 ISO3 country codes
 EU27_COUNTRIES = EU27_COUNTRIES = [
     "AUT",  # Austria
     "BEL",  # Belgium

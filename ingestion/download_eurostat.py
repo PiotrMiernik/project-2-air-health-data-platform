@@ -9,11 +9,20 @@ EUROSTAT_BASE_URL = "https://ec.europa.eu/eurostat/api/dissemination/statistics/
 
 # Relevant Eurostat datasets
 EUROSTAT_DATASETS = {
+    # Health and Environment
     "hlth_cd_aro": "Deaths from respiratory diseases",
     "hlth_cd_asdr2": "Standardised death rate by cause",
     "env_air_emis": "Air pollutant emissions by source sector",
     "env_ac_ainah_r2": "Air emissions accounts by NACE Rev.2 activity",
     "env_air_aa": "Air emissions accounts (GHG and other pollutants)",
+    # Socio-economic
+    "nama_10_pc": "GDP per capita (PPS)",
+    "ilc_di12": "Gini coefficient of income inequality",
+    "ilc_li02": "At-risk-of-poverty rate",
+    "edat_lfse_03": "Educational attainment (ISCED levels)",
+    "hlth_silc_08": "Unmet need for medical examination",
+    "ilc_lvho05a": "Overcrowding rate",
+    "ilc_mdho06a": "Severe housing deprivation rate",
 }
 
 # Environment variables (set via Terraform)
