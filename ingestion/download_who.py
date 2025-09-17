@@ -28,10 +28,34 @@ WHO_INDICATORS = {
 }
 
 # List of EU27 ISO country codes (WHO uses ISO2/ISO3 codes, here we assume ISO2)
-EU27_COUNTRIES = [
-    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE",
-    "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL",
-    "PT", "RO", "SK", "SI", "ES", "SE"
+EU27_COUNTRIES = EU27_COUNTRIES = [
+    "AUT",  # Austria
+    "BEL",  # Belgium
+    "BGR",  # Bulgaria
+    "HRV",  # Croatia
+    "CYP",  # Cyprus
+    "CZE",  # Czechia
+    "DNK",  # Denmark
+    "EST",  # Estonia
+    "FIN",  # Finland
+    "FRA",  # France
+    "DEU",  # Germany
+    "GRC",  # Greece
+    "HUN",  # Hungary
+    "IRL",  # Ireland
+    "ITA",  # Italy
+    "LVA",  # Latvia
+    "LTU",  # Lithuania
+    "LUX",  # Luxembourg
+    "MLT",  # Malta
+    "NLD",  # Netherlands
+    "POL",  # Poland
+    "PRT",  # Portugal
+    "ROU",  # Romania
+    "SVK",  # Slovakia
+    "SVN",  # Slovenia
+    "ESP",  # Spain
+    "SWE",  # Sweden
 ]
 
 # Environment variables (set in Terraform)
