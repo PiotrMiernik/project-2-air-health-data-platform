@@ -50,12 +50,13 @@ def get_top_locations(country_code: str, limit: int):
         "country": country_code,
         "limit": limit,
         "sort": "desc",
-        "order_by": "count"  # most active locations first
+        "order_by": "count"
     }
     response = requests.get(OPENAQ_LOCATIONS_URL, params=params, timeout=30)
     response.raise_for_status()
     data = response.json()
-    return [loc["id"] for loc in data.get("results", [])]
+    # Return only up to 'limit' items
+    return [loc["id"] for loc in data.get("results", [])[:limit]]
 
 
 def fetch_openaq_data(country_code: str, location_ids: list):
@@ -72,7 +73,7 @@ def fetch_openaq_data(country_code: str, location_ids: list):
             "date_to": DATE_TO,
             "temporal": "day",
             "parameter": POLLUTANTS,
-            "limit": 10000,   # API max per page
+            "limit": 10000,
             "sort": "desc"
         }
         response = requests.get(OPENAQ_MEASUREMENTS_URL, params=params, timeout=60)
