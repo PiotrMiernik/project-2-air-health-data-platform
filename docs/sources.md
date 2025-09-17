@@ -10,16 +10,19 @@ This document provides an overview of the external data sources used in the **Ai
 - **API Docs:** [https://docs.openaq.org](https://docs.openaq.org)
 - **Access:** Public (no authentication required)
 - **Format:** JSON
-- **Granularity:**
-  - Spatial: Station-level, city-level
-  - Temporal: Hourly (realtime and historical)
-- **Available Parameters:** PM2.5, PM10, NO2, CO, SO2, O3, BC, etc.
-- **Update Frequency:** Hourly, depending on location
-- **Coverage Period:** From ~2014 to present
-- **Usage in Project:**
-  - Daily air pollution measurements per 1-10 cities (depending on country))
-  - Focus on 10-15 major pollutants (e.g. PM2.5, PM10, NO2)
-  - Aggregated to city or country level depending on target dataset
+
+* **Granularity:**
+
+  * Spatial: Monitoring station level, aggregated to city and country level
+  * Temporal: Hourly raw data, aggregated to daily values in this project
+* **Selected Parameters:** PM2.5, PM10, NO2, O3, CO, SO2
+* **Update Frequency:** Hourly, depending on station
+* **Coverage Period:** From ~2014 to present
+* **Usage in Project:**
+
+  * Daily air quality measurements from the **most active monitoring stations** (1–10 per EU country, depending on country size)
+  * Focus on six key pollutants relevant for public health and respiratory diseases
+  * Data stored in the bronze layer (JSON) and later transformed to Parquet for efficient processing with Glue, Athena, and dbt
 
 ---
 
