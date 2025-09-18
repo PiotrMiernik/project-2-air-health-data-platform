@@ -14,7 +14,7 @@ EUROSTAT_DATASETS = {
     "hlth_cd_asdr2": "Standardised death rate by cause",
     "env_air_emis": "Air pollutant emissions by source sector",
     "env_ac_ainah_r2": "Air emissions accounts by NACE Rev.2 activity",
-    "env_air_aa": "Air emissions accounts (GHG and other pollutants)",
+    "env_air_gge": "Greenhouse gas emissions",
     # Socio-economic
     "nama_10_pc": "GDP per capita (PPS)",
     "ilc_di12": "Gini coefficient of income inequality",
