@@ -6,12 +6,21 @@ resource "aws_lambda_function" "api_ingestion" {
   runtime       = each.value.runtime
   handler       = each.value.handler
 
-  # Wskazanie paczki ZIP wrzuconej wcześniej do S3
-  s3_bucket = aws_s3_bucket.data_lake.bucket
-  s3_key    = each.value.s3_key
+  # Obsługa dwóch wariantów: kod w S3 albo lokalny ZIP
+  s3_bucket = lookup(each.value, "s3_bucket", null)
+  s3_key    = lookup(each.value, "s3_key", null)
+
+  filename         = lookup(each.value, "filename", null)
+  source_code_hash = lookup(each.value, "filename", null) != null ? filebase64sha256(each.value.filename) : null
+
+  timeout     = lookup(each.value, "timeout", 3)
+  memory_size = lookup(each.value, "memory_size", 128)
 
   environment {
-    variables = each.value.env_vars
+    variables = merge(
+      each.value.env_vars,
+      each.key == "openaq" ? { OPENAQ_API_KEY = var.openaq_api_key } : {}
+    )
   }
 
   tags = var.default_tags
