@@ -1,123 +1,96 @@
 import os
 import json
 import time
-import math
 import boto3
 import requests
 import unicodedata
 from io import BytesIO
 from datetime import datetime, timezone
 
-# === Konfiguracja API v3 ===
+# === OpenAQ API v3 configuration ===
 OPENAQ_API_URL = "https://api.openaq.org/v3"
-API_KEY = os.environ.get("OPENAQ_API_KEY")  # wymagane w v3
+API_KEY = os.environ.get("OPENAQ_API_KEY")  # required for v3
 HEADERS = {"X-API-Key": API_KEY} if API_KEY else {}
 
-# Parametry (v3 parameter IDs z dokumentacji: pm10=1, pm25=2, no2=7, so2=9, o3=10, co=8)
+# Pollutants (OpenAQ v3 parameter IDs: pm25=2, no2=7)
 POLLUTANTS = {
     "pm25": 2,
-    "pm10": 1,
-    "no2": 7,
-    "o3": 10,
-    "co": 8,
-    "so2": 9,
+    "no2": 7
 }
 
-# Okres
-DATE_FROM = "2014-01-01"
+# Time range: from 2024-01-01 to now
+DATE_FROM = "2024-01-01"
 DATE_TO = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-# Limity miast (połowa poprzednich; 3 domyślnie; LU/MT=1)
+# City limits (max number of cities with top population per country)
 CITY_LIMITS = {
-    "DE": 5, "FR": 5, "IT": 4, "ES": 4, "PL": 4,
-    "LU": 1, "MT": 1, "default": 3
+    "DE": 3, "FR": 3, "IT": 2, "ES": 2, "PL": 2,
+    "default": 1
 }
 
-# UE27 (ISO2)
+# EU27 ISO country codes
 EU27_COUNTRIES = [
     "AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR",
     "HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK",
     "SI","ES","SE"
 ]
 
-# Największe miasta (ang./lokalne egzonimy; lista skrócona do limitu CITY_LIMITS)
+# Predefined top cities by country (aligned to CITY_LIMITS)
 TOP_CITIES_BY_COUNTRY = {
-    "AT": ["Vienna", "Graz", "Linz"],
-    "BE": ["Brussels", "Antwerp", "Ghent"],
-    "BG": ["Sofia", "Plovdiv", "Varna"],
-    "HR": ["Zagreb", "Split", "Rijeka"],
-    "CY": ["Nicosia", "Limassol", "Larnaca"],
-    "CZ": ["Prague", "Brno", "Ostrava"],
-    "DK": ["Copenhagen", "Aarhus", "Odense"],
-    "EE": ["Tallinn", "Tartu", "Narva"],
-    "FI": ["Helsinki", "Espoo", "Tampere"],
-    "FR": ["Paris", "Marseille", "Lyon", "Toulouse", "Nice"],
-    "DE": ["Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt"],
-    "GR": ["Athens", "Thessaloniki", "Patras"],
-    "HU": ["Budapest", "Debrecen", "Szeged"],
-    "IE": ["Dublin", "Cork", "Limerick"],
-    "IT": ["Rome", "Milan", "Naples", "Turin"],
-    "LV": ["Riga", "Daugavpils", "Liepaja"],
-    "LT": ["Vilnius", "Kaunas", "Klaipeda"],
+    "AT": ["Vienna"],
+    "BE": ["Brussels"],
+    "BG": ["Sofia"],
+    "HR": ["Zagreb"],
+    "CY": ["Nicosia"],
+    "CZ": ["Prague"],
+    "DK": ["Copenhagen"],
+    "EE": ["Tallinn"],
+    "FI": ["Helsinki"],
+    "FR": ["Paris", "Marseille", "Lyon"],
+    "DE": ["Berlin", "Hamburg", "Munich"],
+    "GR": ["Athens"],
+    "HU": ["Budapest"],
+    "IE": ["Dublin"],
+    "IT": ["Rome", "Milan"],
+    "LV": ["Riga"],
+    "LT": ["Vilnius"],
     "LU": ["Luxembourg"],
     "MT": ["Valletta"],
-    "NL": ["Amsterdam", "Rotterdam", "The Hague"],
-    "PL": ["Warsaw", "Krakow", "Lodz", "Wroclaw"],
-    "PT": ["Lisbon", "Porto", "Vila Nova de Gaia"],
-    "RO": ["Bucharest", "Cluj-Napoca", "Timisoara"],
-    "SK": ["Bratislava", "Kosice", "Presov"],
-    "SI": ["Ljubljana", "Maribor", "Celje"],
-    "ES": ["Madrid", "Barcelona", "Valencia", "Seville"],
-    "SE": ["Stockholm", "Gothenburg", "Malmo"],
+    "NL": ["Amsterdam"],
+    "PL": ["Warsaw", "Krakow"],
+    "PT": ["Lisbon"],
+    "RO": ["Bucharest"],
+    "SK": ["Bratislava"],
+    "SI": ["Ljubljana"],
+    "ES": ["Madrid", "Barcelona"],
+    "SE": ["Stockholm"],
 }
 
-# Aliasowa normalizacja nazw (egzonimy/diakrytyki)
+
+# Aliases for city name normalization (diacritics / local names)
 CITY_ALIASES = {
-    # DE
     "munich": ["muenchen", "münchen", "munchen"],
-    "cologne": ["koeln", "köln"],
-    # IT
-    "rome": ["roma"],
-    "milan": ["milano"],
-    "naples": ["napoli"],
-    "turin": ["torino"],
-    # ES
-    "seville": ["sevilla"],
-    # FR
-    "lyon": [],
-    "marseille": [],
-    # NL
-    "the hague": ["den haag", "'s-gravenhage", "s-gravenhage"],
-    # AT / CZ / PL / GR / RO / SK
     "vienna": ["wien"],
     "prague": ["praha"],
-    "krakow": ["kraków", "krakow"],
-    "lodz": ["łódź", "lodz"],
-    "wroclaw": ["wrocław", "wroclaw"],
+    "rome": ["roma"],
+    "milan": ["milano"],
+    "warsaw": ["warszawa"],
+    "krakow": ["kraków"],
     "athens": ["athína", "athina"],
-    "thessaloniki": ["thessaloníki", "salonica", "saloniki"],
     "bucharest": ["bucuresti", "bucurești"],
-    "timisoara": ["timișoara", "timisoara"],
-    "kosice": ["košice", "kosice"],
-    "presov": ["prešov", "presov"],
-    # PT
     "lisbon": ["lisboa"],
-    # SE
-    "malmo": ["malmö"],
-    "gothenburg": ["goteborg", "göteborg", "goteburg"],
-    # LV/LT
-    "klaipeda": ["klaipėda"],
-    "liepaja": ["liepāja"],
 }
 
-# AWS
+
+# AWS S3 configuration
 S3_BUCKET = os.environ.get("S3_BUCKET")
 S3_PREFIX = os.environ.get("S3_PREFIX", "bronze/openaq/v3/eu27/")
 s3 = boto3.client("s3")
 
-# --- narzędzia ---
+# --- utility functions ---
 
 def _norm(txt: str) -> str:
+    """Normalize string: remove accents, lowercase, strip."""
     if txt is None:
         return ""
     txt = unicodedata.normalize("NFKD", txt)
@@ -125,17 +98,18 @@ def _norm(txt: str) -> str:
     return txt.lower().strip()
 
 def _city_matches(locality: str, target: str) -> bool:
+    """Check if locality name matches target (with aliases)."""
     n_loc = _norm(locality)
     n_tar = _norm(target)
     if n_loc == n_tar:
         return True
-    # aliasy
-    al = CITY_ALIASES.get(n_tar, [])
-    return n_loc in {_norm(a) for a in ([target] + al)}
+    aliases = CITY_ALIASES.get(n_tar, [])
+    return n_loc in {_norm(a) for a in ([target] + aliases)}
 
 def _request(url: str, params: dict = None, retries: int = 3, backoff: float = 1.5):
+    """Perform API request with retry on 429 errors."""
     if not API_KEY:
-        raise RuntimeError("Brak OPENAQ_API_KEY w zmiennych środowiskowych.")
+        raise RuntimeError("Missing OPENAQ_API_KEY in environment variables.")
     for attempt in range(retries):
         r = requests.get(url, headers=HEADERS, params=params, timeout=60)
         if r.status_code == 429:
@@ -143,17 +117,17 @@ def _request(url: str, params: dict = None, retries: int = 3, backoff: float = 1
             continue
         r.raise_for_status()
         return r.json()
-    r.raise_for_status()  # jeśli dalej 429, podniesie wyjątek
+    r.raise_for_status()
 
 def list_locations_for_city(iso: str, city: str):
-    # Pobierz wszystkie lokalizacje w kraju, potem filtruj po locality ~ city
+    """Fetch all locations in a country and filter by city name."""
     url = f"{OPENAQ_API_URL}/locations"
     page = 1
     out = []
     while True:
         data = _request(url, params={"iso": iso, "limit": 1000, "page": page})
         for loc in data.get("results", []):
-            locality = loc.get("locality") or loc.get("name")  # fallback
+            locality = loc.get("locality") or loc.get("name")
             if locality and _city_matches(locality, city):
                 out.append(loc)
         found = data.get("meta", {}).get("found") or 0
@@ -164,6 +138,7 @@ def list_locations_for_city(iso: str, city: str):
     return out
 
 def list_sensors_for_locations(location_ids):
+    """Fetch sensors for given location IDs."""
     sensors = []
     for lid in location_ids:
         url = f"{OPENAQ_API_URL}/locations/{lid}/sensors"
@@ -172,7 +147,7 @@ def list_sensors_for_locations(location_ids):
     return sensors
 
 def sensor_coverage_hours(sensor_id: int, date_from: str, date_to: str):
-    # Pobiera 1 rekord z agregacji godzinowej, ale czyta coverage.observedCount z odpowiedzi
+    """Check coverage (observed hours) for a sensor in given time range."""
     url = f"{OPENAQ_API_URL}/sensors/{sensor_id}/measurements/hourly"
     data = _request(url, params={
         "datetime_from": date_from,
@@ -184,10 +159,10 @@ def sensor_coverage_hours(sensor_id: int, date_from: str, date_to: str):
     if results:
         cov = results[0].get("coverage") or {}
         return int(cov.get("observedCount") or 0)
-    # jeśli brak wyników, observedCount=0
     return 0
 
 def pick_best_sensor_per_parameter(sensors, param_id: int, date_from: str, date_to: str):
+    """Pick the sensor with the highest coverage for given parameter."""
     candidates = [s for s in sensors if (s.get("parameter") or {}).get("id") == param_id]
     best = None
     best_cnt = -1
@@ -203,6 +178,7 @@ def pick_best_sensor_per_parameter(sensors, param_id: int, date_from: str, date_
     return best, best_cnt
 
 def save_json_to_s3(obj: dict, key: str):
+    """Save JSON object to S3."""
     s3.put_object(
         Bucket=S3_BUCKET,
         Key=key,
@@ -210,8 +186,9 @@ def save_json_to_s3(obj: dict, key: str):
         ContentType="application/json",
     )
 
-def stream_hourly_to_s3(sensor_id: int, country: str, city: str, param_name: str, date_from: str, date_to: str, request_id: str):
-    # Paginacja i zapis stron do S3
+def stream_hourly_to_s3(sensor_id: int, country: str, city: str, param_name: str,
+                        date_from: str, date_to: str, request_id: str):
+    """Stream hourly measurements for a sensor to S3 with pagination."""
     url = f"{OPENAQ_API_URL}/sensors/{sensor_id}/measurements/hourly"
     page = 1
     total_found = None
@@ -236,10 +213,11 @@ def stream_hourly_to_s3(sensor_id: int, country: str, city: str, param_name: str
     return total_found or 0
 
 def lambda_handler(event, context):
+    """Main Lambda handler: iterate EU27 countries and save hourly data to S3."""
     if not S3_BUCKET:
-        return {"statusCode": 500, "body": json.dumps({"error": "Brak S3_BUCKET w env"})}
+        return {"statusCode": 500, "body": json.dumps({"error": "Missing S3_BUCKET in env"})}
     if not API_KEY:
-        return {"statusCode": 500, "body": json.dumps({"error": "Brak OPENAQ_API_KEY w env (wymagany w v3)"})}
+        return {"statusCode": 500, "body": json.dumps({"error": "Missing OPENAQ_API_KEY in env (required for v3)"})}
 
     stored = {}
     summary = []
@@ -251,7 +229,7 @@ def lambda_handler(event, context):
             try:
                 locs = list_locations_for_city(iso, city)
                 if not locs:
-                    stored[city_key] = "WARN: brak lokalizacji w OpenAQ"
+                    stored[city_key] = "WARN: no locations found in OpenAQ"
                     continue
                 loc_ids = [loc["id"] for loc in locs]
                 sensors = list_sensors_for_locations(loc_ids)
@@ -260,7 +238,7 @@ def lambda_handler(event, context):
                 for pname, pid in POLLUTANTS.items():
                     best, observed = pick_best_sensor_per_parameter(sensors, pid, DATE_FROM, DATE_TO)
                     if not best:
-                        stored[f"{city_key}_{pname}"] = "WARN: brak sensora dla parametru"
+                        stored[f"{city_key}_{pname}"] = "WARN: no sensor for parameter"
                         continue
                     sid = best["id"]
                     n_saved = stream_hourly_to_s3(
@@ -275,7 +253,7 @@ def lambda_handler(event, context):
                     stored[f"{city_key}_{pname}"] = f"OK: sensor {sid}, records={n_saved}"
                     chosen[pname] = {"sensor_id": sid, "observed_hours": observed}
 
-                # manifest miasta
+                # Write city manifest
                 manifest_key = f"{S3_PREFIX}{iso}/{_norm(city).replace(' ','-')}/_manifest_{context.aws_request_id if context else 'local'}.json"
                 save_json_to_s3({
                     "iso": iso,
