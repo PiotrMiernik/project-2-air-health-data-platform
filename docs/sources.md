@@ -4,27 +4,27 @@ This document provides an overview of the external data sources used in the **Ai
 
 ---
 
+---
+
 ## 1. OpenAQ – Air Quality Measurements
 
 - **Website:** [https://openaq.org](https://openaq.org)
 - **API Docs:** [https://docs.openaq.org](https://docs.openaq.org)
-- **Access:** Public (no authentication required)
+- **Access:** Requires API key (v3)
 - **Format:** JSON
 
 * **Granularity:**
 
-  * Spatial: Monitoring station level, aggregated to city and country level
-  * Temporal: Hourly raw data, aggregated to daily values in this project
-* **Selected Parameters:** PM2.5, PM10, NO2, O3, CO, SO2
-* **Update Frequency:** Hourly, depending on station
-* **Coverage Period:** From ~2014 to present
+  * Spatial: Monitoring station level, filtered to selected major cities in each EU country
+  * Temporal: Hourly raw measurements
+* **Selected Parameters:** PM2.5, NO2
+* **Update Frequency:** Hourly, depending on station availability
+* **Coverage Period in this project:** From 1 January 2024 to present
 * **Usage in Project:**
 
-  * Daily air quality measurements from the **most active monitoring stations** (1–10 per EU country, depending on country size)
-  * Focus on six key pollutants relevant for public health and respiratory diseases
-  * Data stored in the bronze layer (JSON) and later transformed to Parquet for efficient processing with Glue, Athena, and dbt
-
----
+  * Hourly measurements are collected from the **most representative sensors** in major EU cities (1–3 per country, depending on country size and data availability)
+  * Two pollutants relevant for public health and respiratory diseases (PM2.5 and NO2) are included
+  * Data is ingested and stored in the **bronze layer** on S3 in JSON format, and later processed with AWS Glue, Athena, and dbt as part of the data lakehouse pipeline
 
 ## 2. WHO – World Health Statistics
 
