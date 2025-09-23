@@ -1,5 +1,6 @@
 # System / IDE
 .DS_Store
+Thumbs.db
 __pycache__/
 *.pyc
 *.pyo
@@ -16,17 +17,28 @@ data/
 validation/__pycache__/
 tests/__pycache__/
 
+# Python packaging / pip cache
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+__pypackages__/
+*.whl
+
 # Environment config
 .env
+.env.*
+!.env.example
 dbt/profiles.yml
-
-# OS-specific
-Thumbs.db
 
 # Terraform
 terraform.tfvars
 *.tfstate
 *.tfstate.*
 .terraform/
-
-
+crash.log
+override.tf
+override.tf.json
+*.tfvars.json
+terraform.rc
+.terraform.lock.hcl
