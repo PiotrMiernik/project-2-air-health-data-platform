@@ -114,12 +114,47 @@ resource "aws_iam_role_policy" "stepfunction_policy" {
         Effect = "Allow"
         Action = ["lambda:InvokeFunction"]
         Resource = [
-          aws_lambda_function.download_openaq.arn,
-          aws_lambda_function.download_who.arn,
-          aws_lambda_function.download_ecdc.arn,
-          aws_lambda_function.download_eurostat.arn
+          aws_lambda_function.api_ingestion["openaq"].arn,
+          aws_lambda_function.api_ingestion["who"].arn,
+          aws_lambda_function.api_ingestion["ecdc"].arn,
+          aws_lambda_function.api_ingestion["eurostat"].arn
         ]
       }
     ]
+  })
+}
+
+# IAM role for AWS EventBridge
+resource "aws_iam_role" "eventbridge_invoke_stepfn_role" {
+  name = "project2-eventbridge-invoke-stepfn-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "events.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+
+  tags = var.default_tags
+}
+
+# IAM policy for EventBridge
+resource "aws_iam_role_policy" "eventbridge_invoke_stepfn_policy" {
+  name = "project2-eventbridge-invoke-stepfn-policy"
+  role = aws_iam_role.eventbridge_invoke_stepfn_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "states:StartExecution"
+      ]
+      Resource = aws_sfn_state_machine.orchestration.arn
+    }]
   })
 }
