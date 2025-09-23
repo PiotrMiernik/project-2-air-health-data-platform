@@ -83,3 +83,43 @@ resource "aws_iam_user_policy" "cicd_user_policy" {
     ]
   })
 }
+
+# IAM role for AWS Step Functions
+resource "aws_iam_role" "stepfunction_exec_role" {
+  name = "project2-stepfunction-exec-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "states.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+
+  tags = var.default_tags
+}
+
+# IAM policy for Step Functions
+resource "aws_iam_role_policy" "stepfunction_policy" {
+  name = "project2-stepfunction-policy"
+  role = aws_iam_role.stepfunction_exec_role.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = ["lambda:InvokeFunction"]
+        Resource = [
+          aws_lambda_function.download_openaq.arn,
+          aws_lambda_function.download_who.arn,
+          aws_lambda_function.download_ecdc.arn,
+          aws_lambda_function.download_eurostat.arn
+        ]
+      }
+    ]
+  })
+}
