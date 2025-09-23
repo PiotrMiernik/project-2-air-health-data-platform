@@ -1,0 +1,50 @@
+{
+  "Comment": "Orchestration of Air Health Data Platform Lambdas",
+  "StartAt": "OpenAQ",
+  "States": {
+    "OpenAQ": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Next": "ParallelAnnual"
+    },
+    "ParallelAnnual": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "WHO",
+          "States": {
+            "WHO": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-who-lambda",
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Eurostat",
+          "States": {
+            "Eurostat": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-eurostat-lambda",
+              "End": true
+            }
+          }
+        }
+      ],
+      "Next": "ECDC"
+    },
+    "ECDC": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-ecdc-lambda",
+      "End": true
+    }
+  }
+}

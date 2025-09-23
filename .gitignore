@@ -1,14 +1,44 @@
-# system
+# System / IDE
 .DS_Store
+Thumbs.db
 __pycache__/
 *.pyc
+*.pyo
+*.log
+*.ipynb_checkpoints
 
-# local data
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Local data
 data/
+validation/__pycache__/
+tests/__pycache__/
 
-# env files
+# Python packaging / pip cache
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+__pypackages__/
+*.whl
+
+# Environment config
 .env
+.env.*
+!.env.example
 dbt/profiles.yml
 
-# venv
-.venv/
+# Terraform
+terraform.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+override.tf
+override.tf.json
+*.tfvars.json
+terraform.rc
+.terraform.lock.hcl
