@@ -31,11 +31,18 @@ jobs:
         with:
           terraform_version: 1.9.8
 
+      - name: Create terraform.tfvars from secret
+        working-directory: terraform
+        run: |
+          cat > terraform.tfvars <<'EOF'
+          ${{ secrets.TERRAFORM_VARS }}
+          EOF
+
       - name: Upload Lambda packages to S3
         run: |
           for file in $(find lambda_build -name "*.zip"); do
-            key=$(echo "$file" | sed 's|lambda_build/||')
-            aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET }}/lambda_build/$key"
+            key=$(basename "$file")   # np. ecdc.zip
+            aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET }}/lambda/$key"
           done
 
       - name: Terraform Init
