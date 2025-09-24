@@ -28,8 +28,9 @@ jobs:
 
       - name: Upload Lambda packages to S3
         run: |
-          for file in lambda_build/*.zip; do
-            aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET }}/lambda_build/$(basename $file)"
+          for file in $(find lambda_build -name "*.zip"); do
+            key=$(echo "$file" | sed 's|lambda_build/||')
+            aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET }}/lambda_build/$key"
           done
 
       - name: Terraform Init
