@@ -37,6 +37,16 @@ output "glue_bronze_db_name" {
   value       = aws_glue_catalog_database.bronze_db.name
 }
 
+output "glue_silver_db_name" {
+  description = "Name of the Glue database for Silver layer"
+  value       = aws_glue_catalog_database.silver_db.name
+}
+
+output "glue_gold_db_name" {
+  description = "Name of the Glue database for Gold layer"
+  value       = aws_glue_catalog_database.gold_db.name
+}
+
 output "glue_crawlers" {
   description = "List of Glue crawler names"
   value = [
@@ -56,15 +66,6 @@ output "glue_service_role_arn" {
 output "athena_workgroup_name" {
   description = "Athena workgroup for queries"
   value       = aws_athena_workgroup.project2.name
-}
-
-output "athena_databases" {
-  description = "Athena databases for Bronze, Silver, Gold layers"
-  value = [
-    aws_athena_database.bronze.name,
-    aws_athena_database.silver.name,
-    aws_athena_database.gold.name
-  ]
 }
 
 output "athena_results_location" {

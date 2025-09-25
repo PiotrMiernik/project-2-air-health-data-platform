@@ -1,17 +1,32 @@
-# AWS Glue Database
+# AWS Glue Databases
+
+# Bronze layer
 resource "aws_glue_catalog_database" "bronze_db" {
   name        = "air_health_bronze"
   description = "Glue database for raw (bronze) air quality and health data"
 }
 
+# Silver layer
+resource "aws_glue_catalog_database" "silver_db" {
+  name        = "air_health_silver"
+  description = "Glue database for cleaned/transformed (silver) data"
+}
+
+# Gold layer
+resource "aws_glue_catalog_database" "gold_db" {
+  name        = "air_health_gold"
+  description = "Glue database for business-ready (gold) data"
+}
+
 # AWS Glue Crawlers
+
 resource "aws_glue_crawler" "openaq" {
   name          = "project2-openaq-crawler"
   role          = aws_iam_role.glue_service_role.arn
   database_name = aws_glue_catalog_database.bronze_db.name
 
   s3_target {
-    path = "s3://${var.s3_bucket_name}/bronze/openaq/v3/eu27"
+    path = "s3://${var.s3_bucket_name}/bronze/openaq/v3/eu27/"
   }
 }
 
