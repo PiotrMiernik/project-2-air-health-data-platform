@@ -42,10 +42,13 @@ download_eurostat.S3_PREFIX = "bronze/eurostat/"
 
 
 def test_lambda_handler_fetches_all(aws_env, s3_client_mock, requests_mock):
-    """Test the full Lambda handler: fetch all datasets for all countries → save → return keys."""
+    """Test the full Lambda handler: fetch all datasets for a limited subset of countries."""
+    # Limit countries in tests to avoid mocking all EU27
+    download_eurostat.EU27_COUNTRIES = ["AT", "FR"]
+
     # Mock API responses for each dataset-country combination
     for dataset_code in download_eurostat.EUROSTAT_DATASETS.keys():
-        for country in ["AT", "FR"]:  # ograniczamy do 2 krajów, żeby test był lekki
+        for country in download_eurostat.EU27_COUNTRIES:
             url = f"{download_eurostat.EUROSTAT_BASE_URL}/{dataset_code}?lang=EN&geo={country}"
             requests_mock.get(url, json={"dataset": dataset_code, "geo": country, "value": [1]}, status_code=200)
 
