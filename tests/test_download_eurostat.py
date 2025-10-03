@@ -26,24 +26,28 @@ def s3_client_mock():
 
 
 def test_fetch_single_dataset(requests_mock):
-    """Test fetching a single Eurostat dataset."""
-    mock_data = {"dataset": "hlth_cd_aro", "value": [1, 2, 3]}
-    url = f"{download_eurostat.EUROSTAT_BASE_URL}/hlth_cd_aro?lang=EN&geo=EU27_2020"
+    """Test fetching a single Eurostat dataset for one country."""
+    mock_data = {"dataset": "hlth_cd_aro", "geo": "AT", "value": [1, 2, 3]}
+    url = f"{download_eurostat.EUROSTAT_BASE_URL}/hlth_cd_aro?lang=EN&geo=AT"
     requests_mock.get(url, json=mock_data, status_code=200)
 
-    result = download_eurostat.fetch_eurostat_dataset("hlth_cd_aro")
+    result = download_eurostat.fetch_eurostat_dataset("hlth_cd_aro", "AT")
     assert result == mock_data
     assert "dataset" in result
+    assert result["geo"] == "AT"
+
 
 download_eurostat.S3_BUCKET = "test-bucket"
 download_eurostat.S3_PREFIX = "bronze/eurostat/"
 
+
 def test_lambda_handler_fetches_all(aws_env, s3_client_mock, requests_mock):
-    """Test the full Lambda handler: fetch all datasets → save → return keys."""
-    # Prepare mock API responses for all datasets
+    """Test the full Lambda handler: fetch all datasets for all countries → save → return keys."""
+    # Mock API responses for each dataset-country combination
     for dataset_code in download_eurostat.EUROSTAT_DATASETS.keys():
-        url = f"{download_eurostat.EUROSTAT_BASE_URL}/{dataset_code}?lang=EN&geo=EU27_2020"
-        requests_mock.get(url, json={"dataset": dataset_code, "value": [1]}, status_code=200)
+        for country in ["AT", "FR"]:  # ograniczamy do 2 krajów, żeby test był lekki
+            url = f"{download_eurostat.EUROSTAT_BASE_URL}/{dataset_code}?lang=EN&geo={country}"
+            requests_mock.get(url, json={"dataset": dataset_code, "geo": country, "value": [1]}, status_code=200)
 
     # Patch boto3 client
     download_eurostat.s3_client = s3_client_mock
