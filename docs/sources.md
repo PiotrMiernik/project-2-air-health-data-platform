@@ -49,7 +49,6 @@ This document provides an overview of the external data sources used in the **Ai
   * `MORT_500`: Number of deaths
   * `MORT_700`: Projection of deaths per 100 000 population
   * `TOTENV_3`: DALYs attributable to the environment
-  * `TOTENV_90`: Environment-attributable DALYs in children under 5
 - **Update Frequency:** Annual or biannual
 - **Coverage Period:** From ~2000 to ~2023 (varies per indicator)
 - **Usage in Project:**
