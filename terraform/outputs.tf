@@ -48,12 +48,9 @@ output "glue_gold_db_name" {
 }
 
 output "glue_crawlers" {
-  description = "List of Glue crawler names"
+  description = "List of Glue crawler names (only silver in new architecture)"
   value = [
-    aws_glue_crawler.openaq.name,
-    aws_glue_crawler.who.name,
-    aws_glue_crawler.ecdc.name,
-    aws_glue_crawler.eurostat.name
+    aws_glue_crawler.silver.name
   ]
 }
 
