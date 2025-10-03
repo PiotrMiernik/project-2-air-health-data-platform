@@ -1,61 +1,56 @@
 # AWS Glue Databases
 
-# Bronze layer
+# Bronze layer (raw data - no crawlers here)
 resource "aws_glue_catalog_database" "bronze_db" {
   name        = "air_health_bronze"
   description = "Glue database for raw (bronze) air quality and health data"
 }
 
-# Silver layer
+# Silver layer (cleaned/transformed)
 resource "aws_glue_catalog_database" "silver_db" {
   name        = "air_health_silver"
   description = "Glue database for cleaned/transformed (silver) data"
 }
 
-# Gold layer
+# Gold layer (business-ready)
 resource "aws_glue_catalog_database" "gold_db" {
   name        = "air_health_gold"
   description = "Glue database for business-ready (gold) data"
 }
 
-# AWS Glue Crawlers
+# AWS Glue Crawler (only for Silver)
 
-resource "aws_glue_crawler" "openaq" {
-  name          = "project2-openaq-crawler"
+resource "aws_glue_crawler" "silver" {
+  name          = "project2-silver-crawler"
   role          = aws_iam_role.glue_service_role.arn
-  database_name = aws_glue_catalog_database.bronze_db.name
+  database_name = aws_glue_catalog_database.silver_db.name
 
   s3_target {
-    path = "s3://${var.s3_bucket_name}/bronze/openaq/v3/eu27/"
+    path = "s3://${var.s3_bucket_name}/silver/"
   }
+
+  schedule = "cron(0 6 * * ? *)" # daily at 6 AM UTC (optional)
 }
 
-resource "aws_glue_crawler" "who" {
-  name          = "project2-who-crawler"
-  role          = aws_iam_role.glue_service_role.arn
-  database_name = aws_glue_catalog_database.bronze_db.name
+# AWS Glue Job (Bronze -> Silver ETL)
 
-  s3_target {
-    path = "s3://${var.s3_bucket_name}/bronze/who/"
+resource "aws_glue_job" "bronze_to_silver" {
+  name     = "bronze-to-silver-job"
+  role_arn = aws_iam_role.glue_service_role.arn
+
+  command {
+    name            = "glueetl"
+    script_location = "s3://${var.s3_bucket_name}/scripts/bronze_to_silver.py"
+    python_version  = "3"
   }
-}
 
-resource "aws_glue_crawler" "ecdc" {
-  name          = "project2-ecdc-crawler"
-  role          = aws_iam_role.glue_service_role.arn
-  database_name = aws_glue_catalog_database.bronze_db.name
+  glue_version      = "4.0"
+  number_of_workers = 2
+  worker_type       = "G.1X"
 
-  s3_target {
-    path = "s3://${var.s3_bucket_name}/bronze/ecdc/"
-  }
-}
-
-resource "aws_glue_crawler" "eurostat" {
-  name          = "project2-eurostat-crawler"
-  role          = aws_iam_role.glue_service_role.arn
-  database_name = aws_glue_catalog_database.bronze_db.name
-
-  s3_target {
-    path = "s3://${var.s3_bucket_name}/bronze/eurostat/"
+  default_arguments = {
+    "--TempDir"        = "s3://${var.s3_bucket_name}/tmp/"
+    "--enable-metrics" = "true"
+    "--job-language"   = "python"
   }
 }

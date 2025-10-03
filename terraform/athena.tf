@@ -12,5 +12,5 @@ resource "aws_athena_workgroup" "project2" {
     publish_cloudwatch_metrics_enabled  = true
   }
 
-  description = "Athena workgroup for querying Glue Data Catalog (bronze, silver, gold)"
+  description = "Athena workgroup for querying Glue Data Catalog (silver and gold lyers)"
 }
