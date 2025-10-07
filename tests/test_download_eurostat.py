@@ -67,7 +67,14 @@ def test_lambda_handler_fetches_all(aws_env, s3_client_mock, requests_mock):
     assert len(body["stored_files"]) == len(download_eurostat.EUROSTAT_DATASETS)
 
     # Verify that files are in S3
-    for dataset_code, key in body["stored_files"].items():
-        obj = s3_client_mock.get_object(Bucket="test-bucket", Key=key)
-        stored_data = json.loads(obj["Body"].read().decode("utf-8"))
-        assert stored_data["dataset"] == dataset_code
+    for dataset_code, keys in body["stored_files"].items():
+        # if multiple files per dataset (one per country)
+        if isinstance(keys, list):
+            for key in keys:
+                obj = s3_client_mock.get_object(Bucket="test-bucket", Key=key)
+                stored_data = json.loads(obj["Body"].read().decode("utf-8"))
+                assert stored_data["dataset"] == dataset_code
+        else:
+            obj = s3_client_mock.get_object(Bucket="test-bucket", Key=keys)
+            stored_data = json.loads(obj["Body"].read().decode("utf-8"))
+            assert stored_data["dataset"] == dataset_code
