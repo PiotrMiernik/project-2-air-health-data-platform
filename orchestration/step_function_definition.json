@@ -1,12 +1,12 @@
 {
-  "Comment": "Sequential orchestration of Air Health Data Platform Lambdas",
+  "Comment": "Sequential orchestration of Air Health Data Platform Lambdas with 4 OpenAQ groups",
   "StartAt": "OpenAQ_Group1",
   "States": {
     "OpenAQ_Group1": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
       "Parameters": {
-        "countries": ["AT","BE","BG","HR","CY","CZ","DK","EE","FI"]
+        "countries": ["AT", "BE", "BG", "HR", "CY", "CZ", "DK"]
       },
       "Retry": [
         {
@@ -22,7 +22,7 @@
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
       "Parameters": {
-        "countries": ["FR","DE","GR","HU","IE","IT","LV","LT","LU"]
+        "countries": ["EE", "FI", "FR", "DE", "GR", "HU", "IE"]
       },
       "Retry": [
         {
@@ -38,7 +38,23 @@
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
       "Parameters": {
-        "countries": ["MT","NL","PL","PT","RO","SK","SI","ES","SE"]
+        "countries": ["IT", "LV", "LT", "LU", "MT", "NL", "PL"]
+      },
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Next": "OpenAQ_Group4"
+    },
+    "OpenAQ_Group4": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": {
+        "countries": ["PT", "RO", "SK", "SI", "ES", "SE"]
       },
       "Retry": [
         {
