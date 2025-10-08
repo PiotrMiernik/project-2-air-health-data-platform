@@ -1,16 +1,72 @@
 {
-  "Comment": "Orchestration of Air Health Data Platform Lambdas",
+  "Comment": "Orchestration of Air Health Data Platform Lambdas with OpenAQ grouped by country sets",
   "StartAt": "OpenAQ",
   "States": {
     "OpenAQ": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
-      "Retry": [
+      "Type": "Parallel",
+      "Branches": [
         {
-          "ErrorEquals": ["States.ALL"],
-          "IntervalSeconds": 10,
-          "MaxAttempts": 3,
-          "BackoffRate": 2.0
+          "StartAt": "OpenAQ_Group1",
+          "States": {
+            "OpenAQ_Group1": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+              "Parameters": {
+                "countries": ["AT","BE","BG","HR","CY","CZ","DK","EE","FI"]
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "OpenAQ_Group2",
+          "States": {
+            "OpenAQ_Group2": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+              "Parameters": {
+                "countries": ["FR","DE","GR","HU","IE","IT","LV","LT","LU"]
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "OpenAQ_Group3",
+          "States": {
+            "OpenAQ_Group3": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+              "Parameters": {
+                "countries": ["MT","NL","PL","PT","RO","SK","SI","ES","SE"]
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "End": true
+            }
+          }
         }
       ],
       "Next": "ParallelAnnual"
@@ -24,6 +80,14 @@
             "WHO": {
               "Type": "Task",
               "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-who-lambda",
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2.0
+                }
+              ],
               "End": true
             }
           }
@@ -34,6 +98,14 @@
             "Eurostat": {
               "Type": "Task",
               "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-eurostat-lambda",
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2.0
+                }
+              ],
               "End": true
             }
           }
@@ -44,6 +116,14 @@
     "ECDC": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-ecdc-lambda",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
       "End": true
     }
   }
