@@ -1,5 +1,5 @@
 {
-  "Comment": "Orchestration of Air Health Data Platform Lambdas with OpenAQ grouped by country sets",
+  "Comment": "Sequential orchestration of Air Health Data Platform Lambdas with parallel OpenAQ execution",
   "StartAt": "OpenAQ",
   "States": {
     "OpenAQ": {
@@ -69,46 +69,30 @@
           }
         }
       ],
-      "Next": "ParallelAnnual"
+      "Next": "WHO"
     },
-    "ParallelAnnual": {
-      "Type": "Parallel",
-      "Branches": [
+    "WHO": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-who-lambda",
+      "Retry": [
         {
-          "StartAt": "WHO",
-          "States": {
-            "WHO": {
-              "Type": "Task",
-              "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-who-lambda",
-              "Retry": [
-                {
-                  "ErrorEquals": ["States.ALL"],
-                  "IntervalSeconds": 10,
-                  "MaxAttempts": 3,
-                  "BackoffRate": 2.0
-                }
-              ],
-              "End": true
-            }
-          }
-        },
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Next": "Eurostat"
+    },
+    "Eurostat": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-eurostat-lambda",
+      "Retry": [
         {
-          "StartAt": "Eurostat",
-          "States": {
-            "Eurostat": {
-              "Type": "Task",
-              "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-eurostat-lambda",
-              "Retry": [
-                {
-                  "ErrorEquals": ["States.ALL"],
-                  "IntervalSeconds": 10,
-                  "MaxAttempts": 3,
-                  "BackoffRate": 2.0
-                }
-              ],
-              "End": true
-            }
-          }
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
         }
       ],
       "Next": "ECDC"
