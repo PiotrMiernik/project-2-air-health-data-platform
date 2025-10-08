@@ -13,8 +13,8 @@ resource "aws_lambda_function" "api_ingestion" {
   filename         = lookup(each.value, "filename", null)
   source_code_hash = lookup(each.value, "filename", null) != null ? filebase64sha256(each.value.filename) : null
 
-  timeout     = lookup(each.value, "timeout", 3)
-  memory_size = lookup(each.value, "memory_size", 128)
+  timeout     = lookup(each.value, "timeout", 900)
+  memory_size = lookup(each.value, "memory_size", 3008)
 
   environment {
     variables = merge(
