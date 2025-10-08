@@ -25,22 +25,29 @@ def s3_client_mock():
 
 
 def test_lambda_handler_flow(aws_env, s3_client_mock, monkeypatch):
-    """Test Lambda handler flow with mocked _request and S3."""
+    """Test Lambda handler flow with mocked _get_json and S3."""
 
-    # Mock _request to return dummy data depending on URL
-    def fake_request(url, params=None, **kwargs):
+    # --- Mock _get_json to return dummy data for each endpoint ---
+    def fake_get_json(url, params=None, **kwargs):
         if url.endswith("/locations"):
-            return {"results": [{"id": 1, "locality": "Berlin"}], "meta": {"found": 1, "limit": 1000}}
+            # Return one fake location
+            return {"results": [{"id": 1}], "meta": {"found": 1, "limit": 1000}}
         if "/locations/1/sensors" in url:
-            return {"results": [{"id": 10, "parameter": {"id": 2}}]}  # pm25 sensor
-        if "/sensors/10/measurements/hourly" in url:
+            # Return one PM2.5 sensor
+            return {"results": [{"id": 10, "parameter": {"id": 2}, "coverage": {"observedCount": 100}}]}
+        if "/sensors/10/days/yearly" in url:
+            # Return fake yearly data
             return {
-                "results": [{"coverage": {"observedCount": 100}}],
-                "meta": {"found": 1, "limit": 1000}
+                "results": [
+                    {"year": 2023, "average": 12.3},
+                    {"year": 2024, "average": 11.7},
+                ],
+                "meta": {"found": 2, "limit": 1000},
             }
         return {"results": [], "meta": {"found": 0, "limit": 1000}}
 
-    monkeypatch.setattr(download_openaq, "_request", fake_request)
+    # Patch _get_json in the module
+    monkeypatch.setattr(download_openaq, "_get_json", fake_get_json)
 
     # Patch boto3 client
     download_openaq.s3 = s3_client_mock
@@ -54,14 +61,17 @@ def test_lambda_handler_flow(aws_env, s3_client_mock, monkeypatch):
     class Context:
         aws_request_id = "abcd"
 
-    response = download_openaq.lambda_handler({}, Context())
+    # Run Lambda handler for a single country to simplify
+    response = download_openaq.lambda_handler({"countries": ["PL"]}, Context())
     body = json.loads(response["body"])
 
     assert response["statusCode"] == 200
-    assert "stored_files" in body
-    assert isinstance(body["stored_files"], dict)
+    assert "stored" in body
+    assert isinstance(body["stored"], dict)
+    assert "PL" in body["stored"]
+    assert "OK" in body["stored"]["PL"] or "WARN" in body["stored"]["PL"]
 
-    # Verify that at least one object was stored in S3
+    # Verify object was written to mock S3
     objects = s3_client_mock.list_objects_v2(Bucket="test-bucket")
     assert "Contents" in objects
-    assert len(objects["Contents"]) > 0
+    assert len(objects["Contents"]) == 1
