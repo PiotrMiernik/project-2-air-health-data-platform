@@ -26,7 +26,7 @@ def _get_json(url, params=None, retries=6, base=0.7):
     for k in range(retries):
         r = requests.get(url, headers=HEADERS, params=params or {}, timeout=60)
         if r.status_code in (429,500,502,503,504):
-            time.sleep((base * (2 ** k)) + random.uniform(0, 0.3))
+            time.sleep((base * (2 ** k)) + random.uniform(0, 1.0))
             continue
         r.raise_for_status()
         return r.json()
