@@ -22,15 +22,18 @@ def _to_int(x, d=0):
     try: return int(x)
     except (TypeError, ValueError): return d
 
-def _get_json(url, params=None, retries=6, base=0.7):
+def _get_json(url, params=None, retries=8, base=2.0):
     for k in range(retries):
         r = requests.get(url, headers=HEADERS, params=params or {}, timeout=60)
-        if r.status_code in (429,500,502,503,504):
-            time.sleep((base * (2 ** k)) + random.uniform(0, 1.0))
+        if r.status_code in (429, 500, 502, 503, 504):
+            # exponential backoff + jitter
+            sleep_time = (base * (2 ** k)) + random.uniform(0, 1.0)
+            time.sleep(sleep_time)
             continue
         r.raise_for_status()
         return r.json()
     r.raise_for_status()
+
 
 def best_sensor_pm25_for_country(iso: str) -> int | None:
     """Returns the ID of the PM2.5 sensor with the highest coverage.observedCount in the country."""
