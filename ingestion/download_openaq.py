@@ -97,6 +97,13 @@ def lambda_handler(event, context):
     summary = {}
 
     for iso in countries:
+        # --- Skip if data already exists in S3 ---
+        prefix_check = f"{S3_PREFIX}{iso}/"
+        existing = s3.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix_check)
+        if "Contents" in existing and any(obj["Key"].endswith(".json") for obj in existing["Contents"]):
+            summary[iso] = "SKIP: already exists in S3"
+            continue
+
         try:
             sid = best_sensor_pm25_for_country(iso)
             if not sid:

@@ -1,71 +1,7 @@
 {
-  "Comment": "Sequential orchestration of Air Health Data Platform Lambdas with 4 OpenAQ groups",
-  "StartAt": "OpenAQ_Group1",
+  "Comment": "Sequential orchestration of Air Health Data Platform Lambdas with resilient error handling",
+  "StartAt": "WHO",
   "States": {
-    "OpenAQ_Group1": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
-      "Parameters": {
-        "countries": ["AT", "BE", "BG", "HR", "CY", "CZ", "DK"]
-      },
-      "Retry": [
-        {
-          "ErrorEquals": ["States.ALL"],
-          "IntervalSeconds": 10,
-          "MaxAttempts": 3,
-          "BackoffRate": 2.0
-        }
-      ],
-      "Next": "OpenAQ_Group2"
-    },
-    "OpenAQ_Group2": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
-      "Parameters": {
-        "countries": ["EE", "FI", "FR", "DE", "GR", "HU", "IE"]
-      },
-      "Retry": [
-        {
-          "ErrorEquals": ["States.ALL"],
-          "IntervalSeconds": 10,
-          "MaxAttempts": 3,
-          "BackoffRate": 2.0
-        }
-      ],
-      "Next": "OpenAQ_Group3"
-    },
-    "OpenAQ_Group3": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
-      "Parameters": {
-        "countries": ["IT", "LV", "LT", "LU", "MT", "NL", "PL"]
-      },
-      "Retry": [
-        {
-          "ErrorEquals": ["States.ALL"],
-          "IntervalSeconds": 10,
-          "MaxAttempts": 3,
-          "BackoffRate": 2.0
-        }
-      ],
-      "Next": "OpenAQ_Group4"
-    },
-    "OpenAQ_Group4": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
-      "Parameters": {
-        "countries": ["PT", "RO", "SK", "SI", "ES", "SE"]
-      },
-      "Retry": [
-        {
-          "ErrorEquals": ["States.ALL"],
-          "IntervalSeconds": 10,
-          "MaxAttempts": 3,
-          "BackoffRate": 2.0
-        }
-      ],
-      "Next": "WHO"
-    },
     "WHO": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-who-lambda",
@@ -73,8 +9,14 @@
         {
           "ErrorEquals": ["States.ALL"],
           "IntervalSeconds": 10,
-          "MaxAttempts": 3,
+          "MaxAttempts": 2,
           "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "Eurostat"
         }
       ],
       "Next": "Eurostat"
@@ -86,8 +28,14 @@
         {
           "ErrorEquals": ["States.ALL"],
           "IntervalSeconds": 10,
-          "MaxAttempts": 3,
+          "MaxAttempts": 2,
           "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "ECDC"
         }
       ],
       "Next": "ECDC"
@@ -99,11 +47,93 @@
         {
           "ErrorEquals": ["States.ALL"],
           "IntervalSeconds": 10,
-          "MaxAttempts": 3,
+          "MaxAttempts": 2,
           "BackoffRate": 2.0
         }
       ],
-      "End": true
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "OpenAQ_Group1"
+        }
+      ],
+      "Next": "OpenAQ_Group1"
+    },
+
+    "OpenAQ_Group1": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["AT","BE","BG"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "OpenAQ_Group2" }],
+      "Next": "OpenAQ_Group2"
+    },
+    "OpenAQ_Group2": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["HR","CY","CZ"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "OpenAQ_Group3" }],
+      "Next": "OpenAQ_Group3"
+    },
+    "OpenAQ_Group3": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["DK","EE","FI"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "OpenAQ_Group4" }],
+      "Next": "OpenAQ_Group4"
+    },
+    "OpenAQ_Group4": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["FR","DE","GR"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "OpenAQ_Group5" }],
+      "Next": "OpenAQ_Group5"
+    },
+    "OpenAQ_Group5": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["HU","IE","IT"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "OpenAQ_Group6" }],
+      "Next": "OpenAQ_Group6"
+    },
+    "OpenAQ_Group6": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["LV","LT","LU"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "OpenAQ_Group7" }],
+      "Next": "OpenAQ_Group7"
+    },
+    "OpenAQ_Group7": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["MT","NL","PL"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "OpenAQ_Group8" }],
+      "Next": "OpenAQ_Group8"
+    },
+    "OpenAQ_Group8": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["PT","RO","SK"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "OpenAQ_Group9" }],
+      "Next": "OpenAQ_Group9"
+    },
+    "OpenAQ_Group9": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-central-1:524501562188:function:project2-openaq-lambda",
+      "Parameters": { "countries": ["SI","ES","SE"] },
+      "Retry": [{ "ErrorEquals": ["States.ALL"], "IntervalSeconds": 10, "MaxAttempts": 2 }],
+      "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "EndState" }],
+      "Next": "EndState"
+    },
+    "EndState": {
+      "Type": "Succeed"
     }
   }
 }
