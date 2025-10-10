@@ -5,7 +5,7 @@ resource "aws_athena_workgroup" "project2" {
 
   configuration {
     result_configuration {
-      output_location = "s3://${var.s3_bucket_name}/athena-results/"
+      output_location = "s3://${var.s3_bucket_name}/silver/athena/"
     }
 
     enforce_workgroup_configuration    = true
