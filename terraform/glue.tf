@@ -23,7 +23,7 @@ resource "aws_glue_catalog_database" "gold_db" {
 # ECDC Glue Job
 resource "aws_glue_job" "project-2-ecdc-job" {
   name     = "project-2-ecdc-job"
-  role_arn = aws_iam_role.glue_exec.arn
+  role_arn = aws_iam_role.glue_service_role.arn
 
   command {
     name            = "glueetl"
@@ -32,16 +32,16 @@ resource "aws_glue_job" "project-2-ecdc-job" {
   }
 
   default_arguments = {
-    "--job-language"                    = "python"
+    "--job-language"                     = "python"
     "--enable-continuous-cloudwatch-log" = "true"
     "--enable-metrics"                   = "true"
   }
 
-  glue_version = "4.0"
-  worker_type  = "G.1X"
+  glue_version      = "4.0"
+  worker_type       = "G.1X"
   number_of_workers = 2
-  timeout      = 10
-  max_retries  = 1
+  timeout           = 10
+  max_retries       = 1
 
   tags = var.default_tags
 }
@@ -49,7 +49,7 @@ resource "aws_glue_job" "project-2-ecdc-job" {
 # Eurostat Glue Job
 resource "aws_glue_job" "project-2-eurostat-job" {
   name     = "project-2-eurostat-job"
-  role_arn = aws_iam_role.glue_exec.arn
+  role_arn = aws_iam_role.glue_service_role.arn
 
   command {
     name            = "glueetl"
@@ -58,16 +58,16 @@ resource "aws_glue_job" "project-2-eurostat-job" {
   }
 
   default_arguments = {
-    "--job-language"                    = "python"
+    "--job-language"                     = "python"
     "--enable-continuous-cloudwatch-log" = "true"
     "--enable-metrics"                   = "true"
   }
 
-  glue_version = "4.0"
-  worker_type  = "G.1X"
+  glue_version      = "4.0"
+  worker_type       = "G.1X"
   number_of_workers = 2
-  timeout      = 10
-  max_retries  = 1
+  timeout           = 10
+  max_retries       = 1
 
   tags = var.default_tags
 }
@@ -75,7 +75,7 @@ resource "aws_glue_job" "project-2-eurostat-job" {
 # Openaq Glue Job
 resource "aws_glue_job" "project-2-openaq-job" {
   name     = "project-2-openaq-job"
-  role_arn = aws_iam_role.glue_exec.arn
+  role_arn = aws_iam_role.glue_service_role.arn
 
   command {
     name            = "glueetl"
@@ -84,16 +84,16 @@ resource "aws_glue_job" "project-2-openaq-job" {
   }
 
   default_arguments = {
-    "--job-language"                    = "python"
+    "--job-language"                     = "python"
     "--enable-continuous-cloudwatch-log" = "true"
     "--enable-metrics"                   = "true"
   }
 
-  glue_version = "4.0"
-  worker_type  = "G.1X"
+  glue_version      = "4.0"
+  worker_type       = "G.1X"
   number_of_workers = 2
-  timeout      = 10
-  max_retries  = 1
+  timeout           = 10
+  max_retries       = 1
 
   tags = var.default_tags
 }
@@ -101,7 +101,7 @@ resource "aws_glue_job" "project-2-openaq-job" {
 # WHO Glue Job
 resource "aws_glue_job" "project-2-who-job" {
   name     = "project-2-who-job"
-  role_arn = aws_iam_role.glue_exec.arn
+  role_arn = aws_iam_role.glue_service_role.arn
 
   command {
     name            = "glueetl"
@@ -110,16 +110,16 @@ resource "aws_glue_job" "project-2-who-job" {
   }
 
   default_arguments = {
-    "--job-language"                    = "python"
+    "--job-language"                     = "python"
     "--enable-continuous-cloudwatch-log" = "true"
     "--enable-metrics"                   = "true"
   }
 
-  glue_version = "4.0"
-  worker_type  = "G.1X"
+  glue_version      = "4.0"
+  worker_type       = "G.1X"
   number_of_workers = 2
-  timeout      = 10
-  max_retries  = 1
+  timeout           = 10
+  max_retries       = 1
 
   tags = var.default_tags
 }

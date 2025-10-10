@@ -47,12 +47,12 @@ output "glue_gold_db_name" {
   value       = aws_glue_catalog_database.gold_db.name
 }
 
-output "glue_crawlers" {
-  description = "List of Glue crawler names (only silver in new architecture)"
-  value = [
-    aws_glue_crawler.silver.name
-  ]
-}
+#output "glue_crawlers" {
+# description = "List of Glue crawler names (only silver in new architecture)"
+# value = [
+# aws_glue_crawler.silver.name
+# ]
+# }
 
 output "glue_service_role_arn" {
   description = "IAM Role ARN used by Glue"

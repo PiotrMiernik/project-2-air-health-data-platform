@@ -8,8 +8,8 @@ resource "aws_athena_workgroup" "project2" {
       output_location = "s3://${var.s3_bucket_name}/athena-results/"
     }
 
-    enforce_workgroup_configuration     = true
-    publish_cloudwatch_metrics_enabled  = true
+    enforce_workgroup_configuration    = true
+    publish_cloudwatch_metrics_enabled = true
   }
 
   description = "Athena workgroup for querying Glue Data Catalog (silver and gold lyers)"
