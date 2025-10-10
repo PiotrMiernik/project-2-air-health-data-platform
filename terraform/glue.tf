@@ -18,39 +18,108 @@ resource "aws_glue_catalog_database" "gold_db" {
   description = "Glue database for business-ready (gold) data"
 }
 
-# AWS Glue Crawler (only for Silver)
-
-resource "aws_glue_crawler" "silver" {
-  name          = "project2-silver-crawler"
-  role          = aws_iam_role.glue_service_role.arn
-  database_name = aws_glue_catalog_database.silver_db.name
-
-  s3_target {
-    path = "s3://${var.s3_bucket_name}/silver/"
-  }
-
-  schedule = "cron(0 6 * * ? *)" # daily at 6 AM UTC (optional)
-}
-
 # AWS Glue Job (Bronze -> Silver ETL)
 
-resource "aws_glue_job" "bronze_to_silver" {
-  name     = "bronze-to-silver-job"
-  role_arn = aws_iam_role.glue_service_role.arn
+# ECDC Glue Job
+resource "aws_glue_job" "project-2-ecdc-job" {
+  name     = "project-2-ecdc-job"
+  role_arn = aws_iam_role.glue_exec.arn
 
   command {
     name            = "glueetl"
-    script_location = "s3://${var.s3_bucket_name}/scripts/bronze_to_silver.py"
+    script_location = "s3://project-2-air-health-data-platform/scripts/project-2-ecdc-job.py"
     python_version  = "3"
   }
 
-  glue_version      = "4.0"
+  default_arguments = {
+    "--job-language"                    = "python"
+    "--enable-continuous-cloudwatch-log" = "true"
+    "--enable-metrics"                   = "true"
+  }
+
+  glue_version = "4.0"
+  worker_type  = "G.1X"
   number_of_workers = 2
-  worker_type       = "G.1X"
+  timeout      = 10
+  max_retries  = 1
+
+  tags = var.default_tags
+}
+
+# Eurostat Glue Job
+resource "aws_glue_job" "project-2-eurostat-job" {
+  name     = "project-2-eurostat-job"
+  role_arn = aws_iam_role.glue_exec.arn
+
+  command {
+    name            = "glueetl"
+    script_location = "s3://project-2-air-health-data-platform/scripts/project-2-eurostat-job.py"
+    python_version  = "3"
+  }
 
   default_arguments = {
-    "--TempDir"        = "s3://${var.s3_bucket_name}/tmp/"
-    "--enable-metrics" = "true"
-    "--job-language"   = "python"
+    "--job-language"                    = "python"
+    "--enable-continuous-cloudwatch-log" = "true"
+    "--enable-metrics"                   = "true"
   }
+
+  glue_version = "4.0"
+  worker_type  = "G.1X"
+  number_of_workers = 2
+  timeout      = 10
+  max_retries  = 1
+
+  tags = var.default_tags
+}
+
+# Openaq Glue Job
+resource "aws_glue_job" "project-2-openaq-job" {
+  name     = "project-2-openaq-job"
+  role_arn = aws_iam_role.glue_exec.arn
+
+  command {
+    name            = "glueetl"
+    script_location = "s3://project-2-air-health-data-platform/scripts/project-2-openaq-job.py"
+    python_version  = "3"
+  }
+
+  default_arguments = {
+    "--job-language"                    = "python"
+    "--enable-continuous-cloudwatch-log" = "true"
+    "--enable-metrics"                   = "true"
+  }
+
+  glue_version = "4.0"
+  worker_type  = "G.1X"
+  number_of_workers = 2
+  timeout      = 10
+  max_retries  = 1
+
+  tags = var.default_tags
+}
+
+# WHO Glue Job
+resource "aws_glue_job" "project-2-who-job" {
+  name     = "project-2-who-job"
+  role_arn = aws_iam_role.glue_exec.arn
+
+  command {
+    name            = "glueetl"
+    script_location = "s3://project-2-air-health-data-platform/scripts/project-2-who-job.py"
+    python_version  = "3"
+  }
+
+  default_arguments = {
+    "--job-language"                    = "python"
+    "--enable-continuous-cloudwatch-log" = "true"
+    "--enable-metrics"                   = "true"
+  }
+
+  glue_version = "4.0"
+  worker_type  = "G.1X"
+  number_of_workers = 2
+  timeout      = 10
+  max_retries  = 1
+
+  tags = var.default_tags
 }
