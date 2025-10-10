@@ -128,16 +128,16 @@ resource "aws_glue_job" "project-2-who-job" {
 
 # ECDC Crawler
 resource "aws_glue_crawler" "ecdc_silver" {
-  name         = "crawler-ecdc-silver"
-  role         = aws_iam_role.glue_service_role.arn
+  name          = "crawler-ecdc-silver"
+  role          = aws_iam_role.glue_service_role.arn
   database_name = aws_glue_catalog_database.silver_db.name
 
   s3_target {
     path = "s3://project-2-air-health-data-platform/silver/ecdc/"
   }
 
-  schedule      = null
-  table_prefix  = "ecdc_"
+  schedule     = null
+  table_prefix = "ecdc_"
   recrawl_policy {
     recrawl_behavior = "CRAWL_EVERYTHING"
   }
@@ -152,15 +152,15 @@ resource "aws_glue_crawler" "ecdc_silver" {
 
 # WHO Crawler
 resource "aws_glue_crawler" "who_silver" {
-  name         = "crawler-who-silver"
-  role         = aws_iam_role.glue_service_role.arn
+  name          = "crawler-who-silver"
+  role          = aws_iam_role.glue_service_role.arn
   database_name = aws_glue_catalog_database.silver_db.name
 
   s3_target {
     path = "s3://project-2-air-health-data-platform/silver/who/"
   }
 
-  table_prefix  = "who_"
+  table_prefix = "who_"
   recrawl_policy {
     recrawl_behavior = "CRAWL_EVERYTHING"
   }
@@ -175,15 +175,15 @@ resource "aws_glue_crawler" "who_silver" {
 
 # Eurostat Crawler
 resource "aws_glue_crawler" "eurostat_silver" {
-  name         = "crawler-eurostat-silver"
-  role         = aws_iam_role.glue_service_role.arn
+  name          = "crawler-eurostat-silver"
+  role          = aws_iam_role.glue_service_role.arn
   database_name = aws_glue_catalog_database.silver_db.name
 
   s3_target {
     path = "s3://project-2-air-health-data-platform/silver/eurostat/"
   }
 
-  table_prefix  = "eurostat_"
+  table_prefix = "eurostat_"
   recrawl_policy {
     recrawl_behavior = "CRAWL_EVERYTHING"
   }
@@ -198,15 +198,15 @@ resource "aws_glue_crawler" "eurostat_silver" {
 
 # OpenAQ Crawler
 resource "aws_glue_crawler" "openaq_silver" {
-  name         = "crawler-openaq-silver"
-  role         = aws_iam_role.glue_service_role.arn
+  name          = "crawler-openaq-silver"
+  role          = aws_iam_role.glue_service_role.arn
   database_name = aws_glue_catalog_database.silver_db.name
 
   s3_target {
     path = "s3://project-2-air-health-data-platform/silver/openaq/"
   }
 
-  table_prefix  = "openaq_"
+  table_prefix = "openaq_"
   recrawl_policy {
     recrawl_behavior = "CRAWL_EVERYTHING"
   }
