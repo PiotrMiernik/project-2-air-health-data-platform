@@ -123,3 +123,98 @@ resource "aws_glue_job" "project-2-who-job" {
 
   tags = var.default_tags
 }
+
+# AWS Glue Crawlers for Silver
+
+# ECDC Crawler
+resource "aws_glue_crawler" "ecdc_silver" {
+  name         = "crawler-ecdc-silver"
+  role         = aws_iam_role.glue_service_role.arn
+  database_name = aws_glue_catalog_database.silver_db.name
+
+  s3_target {
+    path = "s3://project-2-air-health-data-platform/silver/ecdc/"
+  }
+
+  schedule      = null
+  table_prefix  = "ecdc_"
+  recrawl_policy {
+    recrawl_behavior = "CRAWL_EVERYTHING"
+  }
+
+  schema_change_policy {
+    delete_behavior = "LOG"
+    update_behavior = "UPDATE_IN_DATABASE"
+  }
+
+  tags = var.default_tags
+}
+
+# WHO Crawler
+resource "aws_glue_crawler" "who_silver" {
+  name         = "crawler-who-silver"
+  role         = aws_iam_role.glue_service_role.arn
+  database_name = aws_glue_catalog_database.silver_db.name
+
+  s3_target {
+    path = "s3://project-2-air-health-data-platform/silver/who/"
+  }
+
+  table_prefix  = "who_"
+  recrawl_policy {
+    recrawl_behavior = "CRAWL_EVERYTHING"
+  }
+
+  schema_change_policy {
+    delete_behavior = "LOG"
+    update_behavior = "UPDATE_IN_DATABASE"
+  }
+
+  tags = var.default_tags
+}
+
+# Eurostat Crawler
+resource "aws_glue_crawler" "eurostat_silver" {
+  name         = "crawler-eurostat-silver"
+  role         = aws_iam_role.glue_service_role.arn
+  database_name = aws_glue_catalog_database.silver_db.name
+
+  s3_target {
+    path = "s3://project-2-air-health-data-platform/silver/eurostat/"
+  }
+
+  table_prefix  = "eurostat_"
+  recrawl_policy {
+    recrawl_behavior = "CRAWL_EVERYTHING"
+  }
+
+  schema_change_policy {
+    delete_behavior = "LOG"
+    update_behavior = "UPDATE_IN_DATABASE"
+  }
+
+  tags = var.default_tags
+}
+
+# OpenAQ Crawler
+resource "aws_glue_crawler" "openaq_silver" {
+  name         = "crawler-openaq-silver"
+  role         = aws_iam_role.glue_service_role.arn
+  database_name = aws_glue_catalog_database.silver_db.name
+
+  s3_target {
+    path = "s3://project-2-air-health-data-platform/silver/openaq/"
+  }
+
+  table_prefix  = "openaq_"
+  recrawl_policy {
+    recrawl_behavior = "CRAWL_EVERYTHING"
+  }
+
+  schema_change_policy {
+    delete_behavior = "LOG"
+    update_behavior = "UPDATE_IN_DATABASE"
+  }
+
+  tags = var.default_tags
+}
