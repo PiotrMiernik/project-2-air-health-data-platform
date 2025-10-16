@@ -42,3 +42,8 @@ override.tf.json
 *.tfvars.json
 terraform.rc
 .terraform.lock.hcl
+
+# Dbt
+dbt/logs/
+dbt/target/
+dbt/.user.yml

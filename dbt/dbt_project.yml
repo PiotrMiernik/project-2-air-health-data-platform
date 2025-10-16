@@ -1,0 +1,22 @@
+name: "air_health_data_platform"
+version: "1.0"
+config-version: 2
+
+profile: "air_health_data_platform"
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  air_health_data_platform:
+    silver:
+      +materialized: view
+      +database: air_health_silver
+    gold:
+      +materialized: table
+      +database: air_health_gold

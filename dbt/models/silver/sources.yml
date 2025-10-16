@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: silver
+    database: air_health_silver
+    schema: silver
+    tables:
+      - name: openaq_openaq
+        description: "Air quality measurements from the OpenAQ API."
+      - name: who_who
+        description: "Health indicators from WHO API."
+      - name: ecdc_ecdc
+        description: "Epidemiological data from the ECDC dataset."
+      - name: eurostat_eurostat
+        description: "Socioeconomic indicators from Eurostat."
