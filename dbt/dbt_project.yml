@@ -7,8 +7,6 @@ profile: "air_health_data_platform"
 model-paths: ["models"]
 macro-paths: ["macros"]
 test-paths: ["tests"]
-snapshot-paths: ["snapshots"]
-analysis-paths: ["analyses"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 

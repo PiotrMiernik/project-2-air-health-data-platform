@@ -10,6 +10,6 @@ sources:
       - name: who_who
         description: "Health indicators from WHO API."
       - name: ecdc_ecdc
-        description: "Epidemiological data from the ECDC dataset."
+        description: "Epidemiological data from the ECDC API."
       - name: eurostat_eurostat
-        description: "Socioeconomic indicators from Eurostat."
+        description: "Socioeconomic indicators from Eurostat API."
