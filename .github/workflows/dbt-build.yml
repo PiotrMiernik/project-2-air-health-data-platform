@@ -33,9 +33,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
+      - name: Debug profiles.yml presence
+        run: |
+          echo "Repo root:"
+          ls -R .
+          echo "dbt directory:"
+          ls -R dbt
+          echo "profiles.yml content:"
+          cat dbt/profiles.yml
+
       - name: Run dbt build
+        working-directory: ./dbt
         env:
           DBT_PROFILES_DIR: ./dbt
         run: |
-          source .venv/bin/activate
-          dbt build --project-dir ./dbt
+          source ../.venv/bin/activate
+          dbt debug
+          dbt build
