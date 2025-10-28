@@ -22,7 +22,7 @@ models:
         description: Type of disease indicator (cases or deaths)
       - name: total_cases
         description: Total reported cases for given year
-      - name: rate_14_day
+      - name: avg_rate_14_day
         description: 14-day incidence rate
       - name: who_indicator
         description: WHO indicator code for health metric
