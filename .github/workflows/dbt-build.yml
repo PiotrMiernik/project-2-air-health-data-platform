@@ -34,7 +34,8 @@ jobs:
           aws-region: eu-central-1
 
       - name: Run dbt build
-        working-directory: ./dbt
+        env:
+          DBT_PROFILES_DIR: ./dbt
         run: |
-          source ../.venv/bin/activate
-          dbt build --profiles-dir . --project-dir .
+          source .venv/bin/activate
+          dbt build --project-dir ./dbt
