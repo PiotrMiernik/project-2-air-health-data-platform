@@ -2,8 +2,7 @@ version: 2
 
 sources:
   - name: silver
-    database: air_health_silver
-    schema: silver
+    schema: air_health_silver
     tables:
       - name: openaq_openaq
         description: "Air quality measurements from the OpenAQ API."

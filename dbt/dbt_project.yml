@@ -1,7 +1,6 @@
 name: "air_health_data_platform"
 version: "1.0"
 config-version: 2
-
 profile: "air_health_data_platform"
 
 model-paths: ["models"]
@@ -14,7 +13,5 @@ models:
   air_health_data_platform:
     silver:
       +materialized: view
-      +database: air_health_silver
     gold:
       +materialized: table
-      +database: air_health_gold
