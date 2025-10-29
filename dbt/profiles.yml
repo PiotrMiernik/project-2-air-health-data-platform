@@ -1,0 +1,12 @@
+air_health_data_platform:
+  outputs:
+    dev:
+      type: athena
+      s3_staging_dir: s3://project-2-air-health-data-platform/athena-results/
+      catalog: AwsDataCatalog
+      schema: air_health_gold
+      region_name: eu-central-1
+      work_group: project2-athena-wg
+      threads: 4
+      aws_profile_name: default
+  target: dev

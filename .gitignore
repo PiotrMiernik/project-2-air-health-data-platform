@@ -29,7 +29,6 @@ __pypackages__/
 .env
 .env.*
 !.env.example
-dbt/profiles.yml
 
 # Terraform
 terraform.tfvars
