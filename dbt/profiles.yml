@@ -6,7 +6,7 @@ air_health_data_platform:
       type: athena
       catalog: AwsDataCatalog
       schema: air_health_gold
-      s3_staging_dir: s3://project-2-air-health-data-platform/athena-results/
+      s3_staging_dir: s3://project-2-air-health-data-platform/silver/athena/
       s3_data_dir: s3://project-2-air-health-data-platform/gold/
       s3_data_naming: schema_table_unique
       region_name: eu-central-1
@@ -18,7 +18,7 @@ air_health_data_platform:
       type: athena
       catalog: AwsDataCatalog
       schema: air_health_gold
-      s3_staging_dir: s3://project-2-air-health-data-platform/athena-results/
+      s3_staging_dir: s3://project-2-air-health-data-platform/silver/athena/
       s3_data_dir: s3://project-2-air-health-data-platform/gold/
       s3_data_naming: schema_table_unique
       region_name: eu-central-1

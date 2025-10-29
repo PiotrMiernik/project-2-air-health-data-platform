@@ -1,13 +1,15 @@
 name: Deploy Lambdas
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+    types:
+      - closed
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true || github.ref == 'refs/heads/main'
+    if: github.event.pull_request.merged == true 
     runs-on: ubuntu-latest
 
     steps:
@@ -29,11 +31,11 @@ jobs:
       - name: Upload Lambda packages to S3
         run: |
           for file in $(find lambda_build -name "*.zip"); do
-            key=$(basename "$file")   # np. ecdc.zip
+            key=$(basename "$file")  # np. ecdc.zip
             aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET }}/lambda/$key"
           done
 
-      # --- Terraform steps disabled for now (state conflicts in CI/CD) ---
+      # --- Terraform steps disabled for now ---
       # - name: Setup Terraform
       #   uses: hashicorp/setup-terraform@v3
       #   with:

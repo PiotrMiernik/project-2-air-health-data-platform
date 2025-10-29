@@ -15,7 +15,5 @@ models:
       +materialized: view
     gold:
       +materialized: table
-      +file_format: parquet
-      +external: true
 
   
