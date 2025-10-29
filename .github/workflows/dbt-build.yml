@@ -43,10 +43,10 @@ jobs:
           cat dbt/profiles.yml
 
       - name: Run dbt build
-        working-directory: ./dbt
         env:
-          DBT_PROFILES_DIR: ./dbt
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt
         run: |
-          source ../.venv/bin/activate
-          dbt debug
-          dbt build
+          source .venv/bin/activate
+          dbt debug --profiles-dir $DBT_PROFILES_DIR --project-dir ${{ github.workspace }}/dbt
+          dbt build --profiles-dir $DBT_PROFILES_DIR --project-dir ${{ github.workspace }}/dbt
+
