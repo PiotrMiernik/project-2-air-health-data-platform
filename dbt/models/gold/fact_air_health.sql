@@ -1,4 +1,8 @@
-{{ config(materialized = 'table') }}
+{{ config(
+    materialized = 'table',
+    external = true,
+    file_format = 'parquet'
+) }}
 
 -- 1. Air quality data (OpenAQ)
 WITH air_quality AS (

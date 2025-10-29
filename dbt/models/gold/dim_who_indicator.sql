@@ -1,4 +1,8 @@
-{{ config(materialized = 'table') }}
+{{ config(
+    materialized = 'table',
+    external = true,
+    file_format = 'parquet'
+) }}
 
 -- Dimension table for WHO health indicators
 WITH ranked AS (

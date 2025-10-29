@@ -1,4 +1,8 @@
-{{ config(materialized = 'table') }}
+{{ config(
+    materialized = 'table',
+    external = true,
+    file_format = 'parquet'
+) }}
 
 -- Year dimension table derived from the fact table
 SELECT DISTINCT
