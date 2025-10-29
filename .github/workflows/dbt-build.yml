@@ -35,18 +35,18 @@ jobs:
 
       - name: Debug profiles.yml presence
         run: |
-          echo "Repo root:"
+          echo "Repository structure:"
           ls -R .
-          echo "dbt directory:"
-          ls -R dbt
+          echo "----"
           echo "profiles.yml content:"
           cat dbt/profiles.yml
 
-      - name: Run dbt build
+      - name: Run dbt build (CI target)
         env:
           DBT_PROFILES_DIR: ${{ github.workspace }}/dbt
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           source .venv/bin/activate
-          dbt debug --profiles-dir $DBT_PROFILES_DIR --project-dir ${{ github.workspace }}/dbt
-          dbt build --profiles-dir $DBT_PROFILES_DIR --project-dir ${{ github.workspace }}/dbt
-
+          dbt debug --target ci --profiles-dir $DBT_PROFILES_DIR --project-dir ${{ github.workspace }}/dbt
+          dbt build --target ci --profiles-dir $DBT_PROFILES_DIR --project-dir ${{ github.workspace }}/dbt
