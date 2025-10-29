@@ -8,5 +8,6 @@ air_health_data_platform:
       region_name: eu-central-1
       work_group: project2-athena-wg
       threads: 4
-      aws_profile_name: default
+      aws_access_key_id: "{{ env_var('AWS_ACCESS_KEY_ID') }}"
+      aws_secret_access_key: "{{ env_var('AWS_SECRET_ACCESS_KEY') }}"
   target: dev
