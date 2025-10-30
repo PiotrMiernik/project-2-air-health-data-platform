@@ -48,8 +48,8 @@ models:
         description: 'Household and ambient air pollution attributable DALYs.'
 
       # --- Measures from ECDC (Epidemiology) ---
-      - name: ecdc_annual_cases_count
-        description: Total annual case count (sum of weekly_count) from ECDC.
+      - name: ecdc_annual_covid_cases
+        description: Total annual covid case count (sum of weekly_count) from ECDC.
         
       # --- Measures from OpenAQ (Air Pollution) ---
       - name: avg_pm25_concentration

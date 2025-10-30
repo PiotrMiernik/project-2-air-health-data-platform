@@ -36,7 +36,7 @@ aggregated_ecdc_data AS (
     SELECT
         T1.country_code,
         CAST(SUBSTRING(T1.year_week, 1, 4) AS INT) AS year, -- Extracting year from 'YYYY-WW' format
-        SUM(T1.weekly_count) AS ecdc_annual_cases_count
+        SUM(T1.weekly_count) AS ecdc_annual_covid_cases
         
     FROM {{ source('silver', 'ecdc_ecdc') }} T1
     WHERE T1.weekly_count IS NOT NULL
@@ -81,7 +81,7 @@ final_fact_table AS (
         WH.who_air_60_value,
 
         -- Measures from ECDC
-        EC.ecdc_annual_cases_count,
+        EC.ecdc_annual_covid_cases,
         
         -- Measures from OpenAQ
         OA.avg_pm25_concentration
