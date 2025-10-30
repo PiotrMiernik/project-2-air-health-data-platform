@@ -4,11 +4,17 @@
     file_format = 'parquet'
 ) }}
 
-SELECT DISTINCT
+SELECT
+    ROW_NUMBER() OVER (ORDER BY country_code) AS country_id, 
     country_code,
     country AS country_name,
-    continent,
-    MAX(population) AS population
+    AVG(population) AS avg_population 
 FROM {{ source('silver', 'ecdc_ecdc') }}
-WHERE country_code IS NOT NULL
-GROUP BY country_code, country, continent;
+WHERE 
+    country_code IS NOT NULL
+    AND country IS NOT NULL
+GROUP BY 
+    country_code, 
+    country
+ORDER BY 
+    country_id

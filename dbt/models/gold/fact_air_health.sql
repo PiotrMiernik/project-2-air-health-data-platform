@@ -1,83 +1,110 @@
 {{ config(
-    materialized = 'table',
-    external = true,
-    file_format = 'parquet'
+    materialized='table',
+    schema='marts',
+    alias='fact_air_health'
 ) }}
 
--- 1. Air quality data (OpenAQ)
-WITH air_quality AS (
+--- 1. PIVOT WHO DATA (Health Indicators) ---
+-- Pivoting all 11 indicator_codes to separate measure columns.
+WITH pivoted_who_data AS (
     SELECT
-        country_code,
-        parameter_name AS pollutant,
-        CAST(SUBSTRING(datetime_from_utc, 1, 4) AS INT) AS year,
-        AVG(COALESCE(value, 0)) AS avg_pollutant_value
-    FROM {{ source('silver', 'openaq_openaq') }}
-    WHERE country_code IS NOT NULL AND datetime_from_utc IS NOT NULL
-    GROUP BY country_code, parameter_name, CAST(SUBSTRING(datetime_from_utc, 1, 4) AS INT)
+        T1.country_code,
+        CAST(T1.year AS INT) AS year,
+        
+        -- PIVOTING: Indicator_code to measure columns (using MAX/CASE WHEN)
+        MAX(CASE WHEN T1.indicator_code = 'AIR_12' THEN T1.value_numeric END) AS who_air_12_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_62' THEN T1.value_numeric END) AS who_air_62_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_15' THEN T1.value_numeric END) AS who_air_15_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_16' THEN T1.value_numeric END) AS who_air_16_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_35' THEN T1.value_numeric END) AS who_air_35_value,
+        MAX(CASE WHEN T1.indicator_code = 'TOTENV_3' THEN T1.value_numeric END) AS who_totenv_3_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_46' THEN T1.value_numeric END) AS who_air_46_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_10' THEN T1.value_numeric END) AS who_air_10_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_6' THEN T1.value_numeric END) AS who_air_6_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_42' THEN T1.value_numeric END) AS who_air_42_value,
+        MAX(CASE WHEN T1.indicator_code = 'AIR_60' THEN T1.value_numeric END) AS who_air_60_value
+        
+    FROM {{ source('silver', 'who_who') }} T1
+    WHERE T1.value_numeric IS NOT NULL
+    GROUP BY 1, 2
 ),
 
--- 2. Disease data (ECDC)
-diseases AS (
+--- 2. AGGREGATE ECDC DATA (Weekly to Annual Counts) ---
+-- Summing weekly_count to get annual cases per Country-Year.
+aggregated_ecdc_data AS (
     SELECT
-        country_code,
-        indicator AS disease_type,
-        CAST(SPLIT_PART(year_week, '-', 1) AS INT) AS year,
-        SUM(COALESCE(weekly_count, 0)) AS total_cases,
-        AVG(COALESCE(rate_14_day, 0)) AS avg_rate_14_day
-    FROM {{ source('silver', 'ecdc_ecdc') }}
-    WHERE year_week IS NOT NULL
-    GROUP BY country_code, indicator, CAST(SPLIT_PART(year_week, '-', 1) AS INT)
+        T1.country_code,
+        CAST(SUBSTRING(T1.year_week, 1, 4) AS INT) AS year, -- Extracting year from 'YYYY-WW' format
+        SUM(T1.weekly_count) AS ecdc_annual_cases_count
+        
+    FROM {{ source('silver', 'ecdc_ecdc') }} T1
+    WHERE T1.weekly_count IS NOT NULL
+    GROUP BY 1, 2
 ),
 
--- 3. WHO health metrics
-who_metrics AS (
+--- 3. AGGREGATE OPENAQ DATA (Air Pollution) ---
+-- Aggregating PM25 (the only parameter) to Country-Year level.
+aggregated_openaq_data AS (
     SELECT
-        country_code,
-        indicator_code AS who_indicator,
-        CAST(year AS INT) AS year,
-        AVG(COALESCE(value_numeric, 0)) AS who_value_avg
-    FROM {{ source('silver', 'who_who') }}
-    WHERE year IS NOT NULL
-    GROUP BY country_code, indicator_code, CAST(year AS INT)
+        T1.country_code,
+        EXTRACT(YEAR FROM T1.datetime_from_utc) AS year,
+        
+        -- PM25 is the only parameter, calculate average concentration
+        AVG(T1.value) AS avg_pm25_concentration
+        
+    FROM {{ source('silver', 'openaq_openaq') }} T1
+    WHERE T1.value IS NOT NULL AND T1.parameter_name = 'pm25'
+    GROUP BY 1, 2
 ),
 
--- 4. Eurostat environmental indicators
-eurostat_avg AS (
+--- 4. JOIN ALL DATA WITH DIMENSIONS (Star Schema) ---
+final_fact_table AS (
     SELECT
-        country_code,
-        AVG(COALESCE(emission_value, 0)) AS avg_emission_value
-    FROM {{ source('silver', 'eurostat_eurostat') }}
-    WHERE country_code IS NOT NULL
-    GROUP BY country_code
+        -- Dimension Keys (Foreign Keys)
+        DC.country_id,
+        DY.year_id,
+        DC.country_code,
+        DY.year,
+
+        -- Measures from WHO
+        WH.who_air_12_value,
+        WH.who_air_62_value,
+        WH.who_air_15_value,
+        WH.who_air_16_value,
+        WH.who_air_35_value,
+        WH.who_totenv_3_value,
+        WH.who_air_46_value,
+        WH.who_air_10_value,
+        WH.who_air_6_value,
+        WH.who_air_42_value,
+        WH.who_air_60_value,
+
+        -- Measures from ECDC
+        EC.ecdc_annual_cases_count,
+        
+        -- Measures from OpenAQ
+        OA.avg_pm25_concentration
+        
+    FROM {{ ref('dim_country') }} DC
+    
+    -- CROSS JOIN to guarantee every Country-Year combination from the dimensions
+    CROSS JOIN {{ ref('dim_year') }} DY
+    
+    -- LEFT JOINs to attach measures (allowing NULLs if no data exists for a Country-Year)
+    LEFT JOIN pivoted_who_data WH
+        ON DC.country_code = WH.country_code
+        AND DY.year = WH.year
+
+    LEFT JOIN aggregated_ecdc_data EC
+        ON DC.country_code = EC.country_code
+        AND DY.year = EC.year
+        
+    LEFT JOIN aggregated_openaq_data OA
+        ON DC.country_code = OA.country_code
+        AND DY.year = OA.year
+
+    WHERE DC.country_code IS NOT NULL
 )
 
--- 5. Final fact table
-SELECT
-    a.country_code,
-    a.pollutant,
-    a.year,
-    a.avg_pollutant_value,
-
-    d.disease_type,
-    d.total_cases,
-    d.avg_rate_14_day,
-
-    w.who_indicator,
-    w.who_value_avg,
-
-    e.avg_emission_value,
-
-    CASE 
-        WHEN d.total_cases > 0 AND w.who_value_avg > 0 THEN 
-            ROUND(d.total_cases / NULLIF(w.who_value_avg, 0), 4)
-        ELSE NULL 
-    END AS cases_per_health_metric
-FROM air_quality a
-LEFT JOIN diseases d
-       ON a.country_code = d.country_code
-      AND a.year = d.year
-LEFT JOIN who_metrics w
-       ON a.country_code = w.country_code
-      AND a.year = w.year
-LEFT JOIN eurostat_avg e
-       ON a.country_code = e.country_code;
+SELECT * FROM final_fact_table
+ORDER BY country_id, year_id

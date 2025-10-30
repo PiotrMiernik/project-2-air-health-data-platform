@@ -3,75 +3,84 @@ version: 2
 models:
   - name: fact_air_health
     description: >
-      Central fact table integrating air quality, disease, and health indicators
-      from OpenAQ, ECDC, WHO, and Eurostat. Aggregated by country and year.
+      Central fact table integrating pivoted health indicators (WHO), 
+      epidemiological data (ECDC), and air pollution (OpenAQ). 
+      This is a Wide Fact Table aggregated by Country and Year.
     columns:
-      - name: country_code
-        description: ISO country code (EU-27)
+      # --- Foreign Keys ---
+      - name: country_id
+        description: Foreign Key to the dim_country table (Primary Key of the dimension).
         tests:
           - not_null
-      - name: pollutant
-        description: Air pollutant name (e.g. PM2.5)
-      - name: year
-        description: Calendar year of observation
+          - relationships:
+              to: ref('dim_country')
+              field: country_id
+      - name: year_id
+        description: Foreign Key to the dim_year table (Primary Key of the dimension).
         tests:
           - not_null
-      - name: avg_pollutant_value
-        description: Average pollutant concentration for given country and year
-      - name: disease_type
-        description: Type of disease indicator (cases or deaths)
-      - name: total_cases
-        description: Total reported cases for given year
-      - name: avg_rate_14_day
-        description: 14-day incidence rate
-      - name: who_indicator
-        description: WHO indicator code for health metric
-      - name: who_value_avg
-        description: Average value of WHO health indicator
-      - name: avg_emission_value
-        description: Average greenhouse gas emission per country
-      - name: cases_per_health_metric
-        description: "Derived ratio: total cases divided by WHO metric value"
+          - relationships:
+              to: ref('dim_year')
+              field: year_id
+              
+      # --- Measures from WHO (Pivoted Indicators) ---
+      - name: who_air_12_value
+        description: 'Household air pollution attributable deaths in children under 5.'
+      - name: who_air_62_value
+        description: 'Household and ambient air pollution attributable DALYs (per 100 000, age-standardized).'
+      - name: who_air_15_value
+        description: 'Household air pollution attributable DALYs.'
+      - name: who_air_16_value
+        description: 'Household air pollution attributable DALYs in children under 5.'
+      - name: who_air_35_value
+        description: 'Joint effects of air pollution attributable deaths.'
+      - name: who_totenv_3_value
+        description: 'DALYs attributable to the environment.'
+      - name: who_air_46_value
+        description: 'YLLs attributable to ambient air pollution (age-standardized).'
+      - name: who_air_10_value
+        description: 'Ambient air pollution attributable DALYs per 100 000 children under 5.'
+      - name: who_air_6_value
+        description: 'Ambient air pollution attributable deaths per 100 000 children under 5.'
+      - name: who_air_42_value
+        description: 'Ambient air pollution attributable death rate (per 100 000, age-standardized).'
+      - name: who_air_60_value
+        description: 'Household and ambient air pollution attributable DALYs.'
+
+      # --- Measures from ECDC (Epidemiology) ---
+      - name: ecdc_annual_cases_count
+        description: Total annual case count (sum of weekly_count) from ECDC.
+        
+      # --- Measures from OpenAQ (Air Pollution) ---
+      - name: avg_pm25_concentration
+        description: Annual averaged PM2.5 concentration (µg/m³).
 
   - name: dim_country
     description: Dimension table containing country-level metadata.
     columns:
-      - name: country_code
-        description: ISO country code
+      - name: country_id
+        description: Surrogate Key (Primary Key).
         tests:
           - unique
           - not_null
+      - name: country_code
+        description: ISO country code (Business Key).
+        tests:
+          - not_null
       - name: country_name
-        description: Official country name
-      - name: continent
-        description: Continent name
-      - name: population
-        description: Population size
+        description: Official country name.
+      - name: avg_population
+        description: Averaged population size (Static attribute from ECDC).
 
   - name: dim_year
     description: Dimension table with year identifiers and decade grouping.
     columns:
       - name: year_id
-        description: Unique year identifier
+        description: Surrogate Key (Primary Key).
         tests:
           - unique
           - not_null
       - name: year
-        description: Calendar year
+        description: Calendar year (Business Key).
       - name: decade_label
-        description: Decade grouping label (e.g., 2010s)
-
-  - name: dim_who_indicator
-    description: Dimension table describing WHO health indicators and environmental causes.
-    columns:
-      - name: who_indicator_code
-        description: Unique WHO indicator code
-        tests:
-          - unique
-          - not_null
-      - name: who_indicator_subcode
-        description: Subcategory of the WHO indicator, if applicable
-      - name: environmental_cause
-        description: Environmental cause category
-      - name: region
-        description: WHO region or geographic scope
+        description: Decade grouping label (e.g., 2010s).
