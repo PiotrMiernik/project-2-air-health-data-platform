@@ -13,7 +13,7 @@ WITH who_years AS (
 
 openaq_years AS (
     SELECT
-        DISTINCT EXTRACT(YEAR FROM datetime_from_utc) AS year_value
+        DISTINCT EXTRACT(YEAR FROM CAST(datetime_from_utc AS TIMESTAMP)) AS year_value -- Extracting year from datetime_from_utc AS year_value
     FROM {{ source('silver', 'openaq_openaq') }}
     WHERE datetime_from_utc IS NOT NULL
 ),
