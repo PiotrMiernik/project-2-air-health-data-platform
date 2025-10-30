@@ -2,6 +2,7 @@
     materialized = 'table',
     external = true,
     file_format = 'parquet'
+    alias = 'dim_country'
 ) }}
 
 SELECT

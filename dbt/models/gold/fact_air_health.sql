@@ -1,7 +1,8 @@
 {{ config(
-    materialized='table',
-    schema='marts',
-    alias='fact_air_health'
+    materialized = 'table',
+    external = true,
+    file_format = 'parquet'
+    alias = 'fact_air_health'
 ) }}
 
 --- 1. PIVOT WHO DATA (Health Indicators) ---
@@ -47,7 +48,7 @@ aggregated_ecdc_data AS (
 aggregated_openaq_data AS (
     SELECT
         T1.country_code,
-        EXTRACT(YEAR FROM T1.datetime_from_utc) AS year,
+        EXTRACT(YEAR FROM from_iso8601_timestamp(T1.datetime_from_utc)) AS year,
         
         -- PM25 is the only parameter, calculate average concentration
         AVG(T1.value) AS avg_pm25_concentration

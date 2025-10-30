@@ -1,7 +1,8 @@
 {{ config(
-    materialized='table',
-    schema='marts',
-    alias='dim_year'
+    materialized = 'table',
+    external = true,
+    file_format = 'parquet'
+    alias = 'dim_year'
 ) }}
 
 WITH who_years AS (
@@ -13,7 +14,7 @@ WITH who_years AS (
 
 openaq_years AS (
     SELECT
-        DISTINCT EXTRACT(YEAR FROM CAST(datetime_from_utc AS TIMESTAMP)) AS year_value -- Extracting year from datetime_from_utc AS year_value
+        DISTINCT EXTRACT(YEAR FROM from_iso8601_timestamp(datetime_from_utc)) AS year_value
     FROM {{ source('silver', 'openaq_openaq') }}
     WHERE datetime_from_utc IS NOT NULL
 ),
