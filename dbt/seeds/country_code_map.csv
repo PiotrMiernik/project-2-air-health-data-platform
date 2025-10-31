@@ -1,5 +1,5 @@
-"code_2l,	code_3l"
-AT,AUT                      
+code_2l,code_3l
+AT,AUT
 BE,BEL
 BG,BGR
 CY,CYP
@@ -11,7 +11,7 @@ FR,FRA
 DE,DEU
 GR,GRC
 HU,HUN
-IE,IRL 
+IE,IRL
 IT,ITA
 LV,LVA
 LT,LTU
@@ -24,6 +24,6 @@ RO,ROU
 SK,SVK
 SI,SVN
 ES,ESP
-SE,SWE 
-UK,GBR 
+SE,SWE
+UK,GBR
 CH,CHE
