@@ -71,10 +71,10 @@ output "athena_results_location" {
 # --- ORCHESTRATION (Step Functions) Outputs ---
 output "sfn_state_machine_arn" {
   description = "ARN of the main Step Functions State Machine for ETL orchestration"
-  value       = aws_sfn_state_machine.air_health_platform_orchestration.arn
+  value       = aws_sfn_state_machine.orchestration.arn
 }
 
 output "sfn_state_machine_name" {
   description = "Name of the Step Functions State Machine"
-  value       = aws_sfn_state_machine.air_health_platform_orchestration.name
+  value       = aws_sfn_state_machine.orchestration.name
 }

@@ -55,15 +55,15 @@
       "Next": "Run_Silver_Crawlers_Parallel"
     },
 
-    "Run_Silver_Crawlers_Parallel": {
+"Run_Silver_Crawlers_Parallel": {
       "Type": "Parallel",
-      "Comment": "3. Run all Crawlers concurrently to update Silver metadata (for dbt/Athena).",
+      "Comment": "3. Run all Crawlers concurrently (Fire-and-Forget, assuming short crawl time).",
       "Catch": [{ "ErrorEquals": ["States.ALL"], "Next": "End_Failure" }],
       "Branches": [
-        { "StartAt": "WHO_Crawler", "States": { "WHO_Crawler": { "Type": "Task", "Resource": "arn:aws:states:::glue:startCrawlerRun.sync", "Parameters": { "Name": "crawler-who-silver" }, "End": true } } },
-        { "StartAt": "ECDC_Crawler", "States": { "ECDC_Crawler": { "Type": "Task", "Resource": "arn:aws:states:::glue:startCrawlerRun.sync", "Parameters": { "Name": "crawler-ecdc-silver" }, "End": true } } },
-        { "StartAt": "Eurostat_Crawler", "States": { "Eurostat_Crawler": { "Type": "Task", "Resource": "arn:aws:states:::glue:startCrawlerRun.sync", "Parameters": { "Name": "crawler-eurostat-silver" }, "End": true } } },
-        { "StartAt": "OpenAQ_Crawler", "States": { "OpenAQ_Crawler": { "Type": "Task", "Resource": "arn:aws:states:::glue:startCrawlerRun.sync", "Parameters": { "Name": "crawler-openaq-silver" }, "End": true } } }
+        { "StartAt": "WHO_Crawler", "States": { "WHO_Crawler": { "Type": "Task", "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler", "Parameters": { "Name": "crawler-who-silver" }, "End": true } } },
+        { "StartAt": "ECDC_Crawler", "States": { "ECDC_Crawler": { "Type": "Task", "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler", "Parameters": { "Name": "crawler-ecdc-silver" }, "End": true } } },
+        { "StartAt": "Eurostat_Crawler", "States": { "Eurostat_Crawler": { "Type": "Task", "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler", "Parameters": { "Name": "crawler-eurostat-silver" }, "End": true } } },
+        { "StartAt": "OpenAQ_Crawler", "States": { "OpenAQ_Crawler": { "Type": "Task", "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler", "Parameters": { "Name": "crawler-openaq-silver" }, "End": true } } }
       ],
       "Next": "EndState"
     },
