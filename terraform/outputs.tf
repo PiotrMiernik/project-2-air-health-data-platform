@@ -31,12 +31,7 @@ output "cicd_user_arn" {
   value       = aws_iam_user.cicd_user.arn
 }
 
-# Glue Outputs
-output "glue_bronze_db_name" {
-  description = "Name of the Glue database for Bronze layer"
-  value       = aws_glue_catalog_database.bronze_db.name
-}
-
+# --- GLUE Outputs ---
 output "glue_silver_db_name" {
   description = "Name of the Glue database for Silver layer"
   value       = aws_glue_catalog_database.silver_db.name
@@ -47,19 +42,22 @@ output "glue_gold_db_name" {
   value       = aws_glue_catalog_database.gold_db.name
 }
 
-#output "glue_crawlers" {
-# description = "List of Glue crawler names (only silver in new architecture)"
-# value = [
-# aws_glue_crawler.silver.name
-# ]
-# }
-
 output "glue_service_role_arn" {
   description = "IAM Role ARN used by Glue"
   value       = aws_iam_role.glue_service_role.arn
 }
 
-# Athena Outputs
+output "glue_crawlers_silver" {
+  description = "List of all Glue crawler names for the Silver layer"
+  value       = [
+    aws_glue_crawler.ecdc_silver.name,
+    aws_glue_crawler.who_silver.name,
+    aws_glue_crawler.eurostat_silver.name,
+    aws_glue_crawler.openaq_silver.name
+  ]
+}
+
+# --- ATHENA Outputs ---
 output "athena_workgroup_name" {
   description = "Athena workgroup for queries"
   value       = aws_athena_workgroup.project2.name
@@ -68,4 +66,15 @@ output "athena_workgroup_name" {
 output "athena_results_location" {
   description = "S3 location where Athena stores query results"
   value       = aws_athena_workgroup.project2.configuration[0].result_configuration[0].output_location
+}
+
+# --- ORCHESTRATION (Step Functions) Outputs ---
+output "sfn_state_machine_arn" {
+  description = "ARN of the main Step Functions State Machine for ETL orchestration"
+  value       = aws_sfn_state_machine.air_health_platform_orchestration.arn
+}
+
+output "sfn_state_machine_name" {
+  description = "Name of the Step Functions State Machine"
+  value       = aws_sfn_state_machine.air_health_platform_orchestration.name
 }
