@@ -5,10 +5,10 @@ sources:
     schema: air_health_silver
     tables:
       - name: openaq_openaq
-        description: "Air quality measurements from the OpenAQ API."
+        description: "Air quality (pm25) measurements from the OpenAQ API."
       - name: who_who
         description: "Health indicators from WHO API."
       - name: ecdc_ecdc
         description: "Epidemiological data from the ECDC API."
       - name: eurostat_eurostat
-        description: "Socioeconomic indicators from Eurostat API."
+        description: "Greenhouse gas emissions by source sector from Eurostat API."
