@@ -1,8 +1,6 @@
-Defines CloudWatch log groups for functions and monitoring.
-
 # Project 2 – Air Quality and Health Data Platform
 
-This project is an **end-to-end data engineering pipeline** built around a modern **data lakehouse architecture** on AWS using dbt and Python. It integrates air quality and public health data from multiple trusted sources and transforms them into structured, queryable datasets ready for analysis and sharing.
+This project is an **end-to-end data engineering pipeline** built around a modern **data lakehouse architecture** on AWS (S3, Glue, Athena) using dbt and Python. It integrates air quality and public health data from multiple trusted sources and transforms them into structured, queryable datasets ready for analysis and sharing.
 
 ---
 
@@ -10,23 +8,24 @@ This project is an **end-to-end data engineering pipeline** built around a moder
 
 The main goal is to design and implement a complete data platform that:
 
-- Collects air quality and disease-related data from public APIs (OpenAQ, WHO, ECDC)
+- Collects air quality and disease-related data from public APIs (OpenAQ, WHO, ECDC, Eurostat)
 - Loads raw data into a **data lake** on Amazon S3 (Bronze layer)
-- Catalogs data using AWS Glue and exposes it in Athena
-- Transforms data through versioned dbt models (Silver and Gold layers)
+- Transforms json files (parse and flate) into parquet format with AWS Glue Jobs (Silver layer)
+- Catalogs data using AWS Glue in Silver layer and exposes it in Athena
+- Transforms data through versioned dbt models (Gold layer)
 - Validates and tests code and data via automated CI/CD
-- Publishes data for reuse through AWS Athena or AWS Data Exchange
+- Publishes data for reuse through AWS Athena
 
 ---
 
 ## Key Features
 
 - **Lakehouse architecture** using S3 + Glue + Athena + dbt
-- **ELT workflow** with modular Python ingestion and dbt transformations
+- **ELT workflow** with modular Python ingestion, AWS Glue Jobs and dbt transformations
 - **Layered modeling**: Bronze → Silver → Gold
 - **CI/CD pipelines** with GitHub Actions (Python + dbt)
 - **Automated testing**:
-  - Python unit tests for ingestion and helper functions
+  - Python unit tests for ingestion
   - Data validation logic (nulls, types, schema)
   - dbt tests (`not_null`, `unique`, etc.)
 - Designed for **data sharing** with analysts, researchers, and policymakers
@@ -142,19 +141,23 @@ project2-air-health-trends/
 ## Technologies Used
 
 - **Python 3.11+** – ingestion scripts, validation, testing
+- **AWS Lambda** - data ingestion from API
 - **AWS S3** – raw and processed data storage
-- **AWS Glue** – automatic schema inference and Data Catalog
+- **AWS Glue** – automatic transformations with Glue Jobs, schema inference with Glue Crawlers and Data Catalog
 - **AWS Athena** – querying data with SQL over S3
-- **dbt** – transformation logic, testing, documentation
+- **AWS Step Functions** – orchestration of ingestion and Glue transformation workflows
+- **AWS CloudWatch -** project dashboard with basic pipeline quality metrics
+- **AWS EventBridge** - orchestration trigger for all sources
+- **AWS IAM** - roles and policies for different servicies used in project
+- **dbt** – transformation logic with SQL models, testing, documentation
 - **GitHub Actions** – CI/CD pipelines for Python and dbt
-- **AWS Step Functions** – orchestration of ingestion workflows
-- **AWS Data Exchange** – data sharing platform for publishing datasets
+- **Terraform** - IaC tool
 
 ## CI/CD Workflows
 
 | File                                    | What it does                                         |
 | --------------------------------------- | ---------------------------------------------------- |
-| `.github/workflows/run-tests.yml`     | Runs `pytest` for ingestion scripts and utils      |
+| `.github/workflows/run-tests.yml`     | Runs `pytest` for ingestion scripts                |
 | `.github/workflows/dbt-build.yml`     | Runs `dbt build` and `dbt test` on model changes |
 | `.github/workflows/deploy-lambda.yml` | Runs data ingestion scripts                          |
 
@@ -169,7 +172,7 @@ CI/CD is triggered automatically on every push or pull request to the `dev` and 
 - dbt schema tests (`not_null`, `unique`, `accepted_values`)
 - All tests are automatically executed in CI pipelines
 
-Tests are written **during development**, and **automated during project stage 4** via GitHub Actions.
+Tests are written **during development**, and **automated** via GitHub Actions.
 
 ---
 
@@ -177,9 +180,9 @@ Tests are written **during development**, and **automated during project stage 4
 
 The final datasets from the `gold` layer are:
 
-- Stored in Parquet or CSV format
+- Stored in Parquet format
 - Available for querying via AWS Athena
-- Shared through public S3 buckets or published as a **data product** on **AWS Data Exchange**
+- Shared through public S3 buckets
 
 ---
 
