@@ -1,11 +1,5 @@
 # AWS Glue Databases
 
-# Bronze layer (raw data - no crawlers here)
-resource "aws_glue_catalog_database" "bronze_db" {
-  name        = "air_health_bronze"
-  description = "Glue database for raw (bronze) air quality and health data"
-}
-
 # Silver layer (cleaned/transformed)
 resource "aws_glue_catalog_database" "silver_db" {
   name        = "air_health_silver"
