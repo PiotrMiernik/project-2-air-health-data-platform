@@ -47,7 +47,7 @@ aggregated_ecdc_data AS (
 -- Aggregating PM25 (the only parameter) to Country-Year level.
 aggregated_openaq_data AS (
     SELECT
-        T1.country_code,
+        {{ map_country_code_2_to_3_letter('T1.country_code') }} AS country_code,
         EXTRACT(YEAR FROM from_iso8601_timestamp(T1.datetime_from_utc)) AS year,
         
         -- PM25 is the only parameter, calculate average concentration
