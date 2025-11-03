@@ -1,6 +1,6 @@
 # Project 2 – Air Quality and Health Data Platform
 
-This project is an **end-to-end data engineering pipeline** built around a modern **data lakehouse architecture** on AWS (S3, Glue, Athena) using dbt and Python. It integrates air quality and public health data from multiple trusted sources and transforms them into structured, queryable datasets ready for analysis and sharing.
+This project is an **end-to-end data pipeline** built around a modern **data lakehouse architecture** on AWS (S3, Glue, Athena) using dbt and Python. It integrates air quality and public health data from multiple trusted sources and transforms them into structured, queryable datasets ready for analysis and sharing.
 
 ---
 
@@ -10,7 +10,7 @@ The main goal is to design and implement a complete data platform that:
 
 - Collects air quality and disease-related data from public APIs (OpenAQ, WHO, ECDC, Eurostat)
 - Loads raw data into a **data lake** on Amazon S3 (Bronze layer)
-- Transforms json files (parse and flate) into parquet format with AWS Glue Jobs (Silver layer)
+- Transforms json files (parse and flatten) into parquet format with AWS Glue Jobs (Silver layer)
 - Catalogs data using AWS Glue in Silver layer and exposes it in Athena
 - Transforms data through versioned dbt models (Gold layer)
 - Validates and tests code and data via automated CI/CD
@@ -36,7 +36,63 @@ The main goal is to design and implement a complete data platform that:
 
 project2-air-health-trends/
 
-├── ingestion/                  # Python scripts for downloading data
+├── .github/workflows/          # CI/CD automation
+
+│   ├── run-tests.yml           # Python tests + validation
+
+│   └── dbt-build.yml           # dbt build + test on push/PR
+
+│   └── deploy-lambda.yml           # AWS lambda function for data ingestion
+
+├── .venv/                 # Python virtual environment
+
+├── docs/                 # documentation files and diagrams for the project
+
+│   └── architecture.png
+
+│   └── sources.md
+
+│   └── dbt-dag.png
+
+│   └── stepfunction_graph.png
+
+├── dbt/                        # dbt project (Athena backend)
+
+│   ├── models/
+
+│   │   ├── silver/             # Cleaned / normalized
+
+│   │   │   ├── sources.yml		# Data sources from the silver layer registered in AWS Glue
+
+│   │   └── gold/               # Analytical business logic
+
+│   │   │   ├── dim_country.sql
+
+│   │   │   ├── dim_year.sql
+
+│   │   │   ├── fact_air_health.sql
+
+│   ├── tests/                  # Data quality and integrity checks
+
+│   ├── macros/                 # Reusable Jinja functions
+
+│   ├── seeds/              # Static reference data for dbt
+
+│   ├── dbt_project.yml		# core configuration
+
+│   └── profiles.yml            # dbt connection and target configuration
+
+├── glue/                  # AWS Glue jobs scripts for bronze - silver transformations
+
+│   ├── project-2-ecdc-job.py
+
+│   ├── project-2-eurostat-job.py
+
+│   ├── project-2-openaq-job.py
+
+│   └── project-2-who-job.py
+
+├── ingestion/                  # Python scripts for downloading data from API
 
 │   ├── download_openaq.py
 
@@ -46,51 +102,45 @@ project2-air-health-trends/
 
 │   └── download_eurostat.py
 
-├── dbt/                        # dbt project (Athena backend)
+├── lambda_build/                  # Deployment packages for AWS Lambda functions
 
-│   ├── models/
+│   ├── download_openaq.py
 
-│   │   ├── bronze/             # Raw staging from S3
+│   ├── download_who.py
 
-│   │   ├── silver/             # Cleaned / normalized
+│   ├── download_ecdc.py
 
-│   │   └── gold/               # Analytical business logic
+│   └── download_eurostat.py
 
-│   ├── tests/                  # dbt schema tests
+├── orchestration/              # AWS Step Functions definition
 
-│   ├── macros/                 # Reusable Jinja functions
-
-│   ├── snapshots/              # (Optional) slowly changing dimensions
-
-│   ├── dbt_project.yml		# core configuration
-
-│   └── profiles.yml            # dbt profile (local or CI secret)
+│   └── step_function_definition.json
 
 ├── terraform/                  # Terraform folder for project infrastructure definition and managment (IaC approach)
 
 │   ├── athena.tf		# Configures Athena settings, such as query result location in S3
 
-│   ├── glue.tf		# Provisions Glue Data Catalog database and crawlers for schema discovery
+│   ├── cloudwatch.tf		# Create the main CloudWatch Dashboard for the project
 
-│   ├── s3.tf		# Creates the S3 data lake structure (bronze/silver/gold/public/query-results)
+│   ├── eventbridge.tf		# Terraform configuration for EventBridge scheduling
 
-│   ├── stepfunction.tf		# Defines Step Functions state machines for orchestrating ingestion workflows
+│   ├── glue.tf		# Provisions Glue Data Catalog database, jobs and crawlers for schema discovery
 
-│   ├── cloudwatch.tf		# Defines CloudWatch log groups for functions and monitoring
+│   ├── iam.tf		# Sets up IAM roles and policies for AWS resources
 
-│   ├── iam.tf		# Sets up IAM roles and policies for Lambda, CI/CD, and Step Functions
-
-│   └── main.tf		# Optional central file to coordinate module loading or key resources
+│   ├── lambda.tf		# Terraform configuration for AWS Lambda functions
 
 │   ├── outputs.tf		# Specifies which output values (e.g. bucket ARN, IAM role name) should be printed after apply
 
 │   ├── providers.tf	# Defines the required providers (e.g. AWS) and their versions
 
+│   ├── s3.tf		# Creates the S3 data lake structure (bronze/silver/gold/public/query-results)
+
+│   ├── stepfunction.tf		# Defines Step Functions state machines for orchestrating ingestion workflows
+
 │   ├── variables.tf		# Declares input variables used across all modules (e.g. region, bucket name)
 
-│   └── terraform.tfvars.example		# Example values for variables – used locally or in CI (do not commit real values)
-
-│   └── README.md		# Usage instructions for initializing and deploying infrastructure with Terraform
+│   └── terraform.tfvars		# Values for variables – used locally or in CI (do not commit real values)
 
 ├── tests/                      # Unit tests for ingestion and utils
 
@@ -102,41 +152,13 @@ project2-air-health-trends/
 
 │   ├── test_download_eurostat.py
 
-│   ├── test_s3_utils.py
-
-├── config/                 # env. variables for local tests and development
-
-│   └── .env
-
-├── docs/                 # documentation files and diagrams for the project.
-
-│   └── architecture.png
-
-│   └── sources.md
-
-├── orchestration/              # AWS Step Functions definition
-
-│   └── step_function_definition.json
-
-├── utils/                      # Helper functions
-
-│   └── s3_utils.py
-
-├── .github/workflows/          # CI/CD automation
-
-│   ├── run-tests.yml           # Python tests + validation
-
-│   └── dbt-build.yml           # dbt build + test on push/PR
-
-│   └── deploy-lambda.yml           # AWS lambda function for data ingestion
-
-├── data/                       # (Optional) local sample data
-
-├── requirements.txt            # Python dependencies
-
 ├── .gitignore                  # Files and folders to exclude from Git
 
 └── README.md
+
+├── requirements-dbt.txt            # dbt dependencies
+
+├── requirements-tests.txt            # Python tests dependencies
 
 ## Technologies Used
 
@@ -147,8 +169,8 @@ project2-air-health-trends/
 - **AWS Athena** – querying data with SQL over S3
 - **AWS Step Functions** – orchestration of ingestion and Glue transformation workflows
 - **AWS CloudWatch -** project dashboard with basic pipeline quality metrics
-- **AWS EventBridge** - orchestration trigger for all sources
-- **AWS IAM** - roles and policies for different servicies used in project
+- **AWS EventBridge** - scheduling trigger for all workflows
+- **AWS IAM** - roles and policies for project services
 - **dbt** – transformation logic with SQL models, testing, documentation
 - **GitHub Actions** – CI/CD pipelines for Python and dbt
 - **Terraform** - IaC tool
@@ -182,7 +204,7 @@ The final datasets from the `gold` layer are:
 
 - Stored in Parquet format
 - Available for querying via AWS Athena
-- Shared through public S3 buckets
+- Ready for sharing or integration through AWS Athena or AWS Data Exchange.
 
 ---
 
@@ -190,6 +212,5 @@ The final datasets from the `gold` layer are:
 
 This project is licensed under the terms of the [LICENSE](./LICENSE) file.
 
----
 
 Created by **Piotr Miernik – 2025**
