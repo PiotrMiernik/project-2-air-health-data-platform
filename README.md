@@ -142,7 +142,7 @@ project2-air-health-trends/
 
 │   └── terraform.tfvars		# Values for variables – used locally or in CI (do not commit real values)
 
-├── tests/                      # Unit tests for ingestion and utils
+├── tests/                      # Unit tests for ingestion
 
 │   ├── test_download_openaq.py
 
