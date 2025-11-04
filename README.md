@@ -1,5 +1,13 @@
 # Project 2 – Air Quality and Health Data Platform
 
+
+![Tests](https://github.com/PiotrMiernik/project-2-air-health-data-platform/actions/workflows/run-tests.yml/badge.svg)
+
+![dbt build](https://github.com/PiotrMiernik/project-2-air-health-data-platform/actions/workflows/dbt-build.yml/badge.svg)
+
+![Lambda
+Deploy](https://github.com/PiotrMiernik/project-2-air-health-data-platform/actions/workflows/deploy-lambda.yml/badge.svg)
+
 This project is an **end-to-end data pipeline** built around a modern **data lakehouse architecture** on AWS (S3, Glue, Athena) using dbt and Python. It integrates air quality and public health data from multiple trusted sources and transforms them into structured, queryable datasets ready for analysis and sharing.
 
 ---
@@ -211,6 +219,5 @@ The final datasets from the `gold` layer are:
 ## License
 
 This project is licensed under the terms of the [LICENSE](./LICENSE) file.
-
 
 Created by **Piotr Miernik – 2025**
